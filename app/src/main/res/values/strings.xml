@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Rosbot</string>
+    <string name="sql_editor">SQL editor</string>
 </resources>
