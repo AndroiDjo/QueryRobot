@@ -10,6 +10,7 @@ public class Mind {
 
     public Mind(Context context) {
         sqlcon = SQLitecon.getInstance(context);
+
     }
 
 }
