@@ -1,17 +1,18 @@
 package ru.rt.south.rosbot;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity implements SmileFace.OnSmileySelectionListener, SmileFace.OnRatingSelectedListener {
 
     private SmileFace mSmileFace;
     private static final String TAG = "MainActivity";
+    private int currentSmile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,8 +21,8 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
         mSmileFace = (SmileFace) findViewById(R.id.smileView);
         mSmileFace.setOnSmileySelectionListener(this);
         mSmileFace.setOnRatingSelectedListener(this);
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "MetalMacabre.ttf");
-        mSmileFace.setTypeface(typeface);
+        currentSmile = SmileFace.TERRIBLE;
+        mSmileFace.setSelectedSmile(currentSmile);
     }
 
     @Override
@@ -68,6 +69,15 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
     @Override
     public void onRatingSelected(int level, boolean reselected) {
         Log.i(TAG, "Rated as: " + level + " - " + reselected);
+    }
+
+    public void nextEmotion(View view) {
+        if (currentSmile == mSmileFace.SMILES_LIST[mSmileFace.SMILES_LIST.length-1]) {
+            currentSmile = mSmileFace.SMILES_LIST[0];
+        } else {
+            currentSmile++;
+        }
+        mSmileFace.setSelectedSmile(currentSmile, true);
     }
 
 }

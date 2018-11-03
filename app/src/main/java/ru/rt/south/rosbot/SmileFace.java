@@ -79,6 +79,7 @@ public class SmileFace extends Face {
     // private float mTranslation = 0;
     private float mWidth;
     private float mHeight;
+    private float mCenterX;
     private float mCenterY;
     private float mFromRange;
     private float mToRange;
@@ -117,7 +118,7 @@ public class SmileFace extends Face {
             mPlaceholderBackgroundColor = a.getColor(R.styleable.SmileFace_placeHolderBackgroundColor, mPlaceholderBackgroundColor);
             mTextSelectedColor = a.getColor(R.styleable.SmileFace_textSelectionColor, mTextSelectedColor);
             mTextNonSelectedColor = a.getColor(R.styleable.SmileFace_textNonSelectionColor, mTextNonSelectedColor);
-            mShowLine = a.getBoolean(R.styleable.SmileFace_showLine, true);
+            mShowLine = a.getBoolean(R.styleable.SmileFace_showLine, false);
             mIndicator = a.getBoolean(R.styleable.SmileFace_isIndicator, false);
             a.recycle();
         }
@@ -229,9 +230,10 @@ public class SmileFace extends Face {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mWidth = getMeasuredWidth();
-        // mHeight = mWidth / 5.3f;
-        mHeight = mWidth / (5.3f * 1.3f);
+        mHeight = getMeasuredHeight() / 2;
+        //mHeight = mWidth / (5.3f * 1.3f);
         mCenterY = mHeight / 2f;
+        mCenterX = mWidth / 2f;
         mFaceCenter.y = mCenterY;
         divisions = (mHeight / 32f);
         mTextPaint.setTextSize(mHeight / 4.5f);
@@ -262,8 +264,7 @@ public class SmileFace extends Face {
     private Face createFace(int index, float centerY) {
         Face face = new Face();
         face.smileType = index;
-        getSmiley(mSmileys, index * 0.25f, divisions, mFromRange, mToRange, face.place,
-                face.smile, centerY);
+        getSmiley(mSmileys, index * 0.25f, divisions, mFromRange, mToRange, face.place, face.smile, centerY);
         face.place.y = centerY;
         return face;
     }
@@ -276,56 +277,49 @@ public class SmileFace extends Face {
         if (mShowLine) {
             canvas.drawLine(start.x, start.y, end.x, end.y, mPlaceholderLinePaint);
         }
-        for (Face face : mFaces) {
-            float scale = getScale(face.smileType);
-            canvas.drawCircle(face.place.x, face.place.y,
-                    scale * (mHeight / 2), mPlaceHolderCirclePaint);
-            mScaleMatrix.reset();
-            face.smile.computeBounds(mScaleRect, true);
-            if (mSmileyNotSelectedPreviously) {
-                float nonSelectedScale = getScale(NONE);
-                mScaleMatrix.setScale(nonSelectedScale, nonSelectedScale,
-                        mScaleRect.centerX(), mScaleRect.centerY());
-                if (mSelectedSmile == face.smileType) {
-                    scale = mFloatEvaluator.evaluate(1 - mMainSmileyTransformaFraction, 0, nonSelectedScale);
-                }
-            } else {
-                mScaleMatrix.setScale(scale, scale,
-                        mScaleRect.centerX(), mScaleRect.centerY());
-            }
-            mDummyDrawPah.reset();
-            mDummyDrawPah.addPath(face.smile, mScaleMatrix);
-            canvas.drawPath(mDummyDrawPah, mPlaceHolderFacePaint);
-            float transY = 0.15f - (scale * 0.15f);
-            mTextPaint.setColor((int) mColorEvaluator.evaluate(((transY / 0.15f) - 0.2f) / 0.8f,
-                    mTextNonSelectedColor, mTextSelectedColor));
-            drawTextCentered(getSmileName(face.smileType), face.place.x,
-                    face.place.y + (mHeight * (0.70f + transY)), mTextPaint, canvas);
-        }
+//        for (Face face : mFaces) {
+//            float scale = getScale(face.smileType);
+//            canvas.drawCircle(face.place.x, face.place.y,
+//                    scale * (mHeight / 2), mPlaceHolderCirclePaint);
+//            mScaleMatrix.reset();
+//            face.smile.computeBounds(mScaleRect, true);
+//            if (mSmileyNotSelectedPreviously) {
+//                float nonSelectedScale = getScale(NONE);
+//                mScaleMatrix.setScale(nonSelectedScale, nonSelectedScale,
+//                        mScaleRect.centerX(), mScaleRect.centerY());
+//                if (mSelectedSmile == face.smileType) {
+//                    scale = mFloatEvaluator.evaluate(1 - mMainSmileyTransformaFraction, 0, nonSelectedScale);
+//                }
+//            } else {
+//                mScaleMatrix.setScale(scale, scale,
+//                        mScaleRect.centerX(), mScaleRect.centerY());
+//            }
+//            mDummyDrawPah.reset();
+//            mDummyDrawPah.addPath(face.smile, mScaleMatrix);
+//            canvas.drawPath(mDummyDrawPah, mPlaceHolderFacePaint);
+//            /*float transY = 0.15f - (scale * 0.15f);
+//            mTextPaint.setColor((int) mColorEvaluator.evaluate(((transY / 0.15f) - 0.2f) / 0.8f,
+//                    mTextNonSelectedColor, mTextSelectedColor));
+//            drawTextCentered(getSmileName(face.smileType), face.place.x,
+//                    face.place.y + (mHeight * (0.70f + transY)), mTextPaint, canvas);*/
+//        }
         if (!mSmilePath.isEmpty()) {
             if (mSmileyNotSelectedPreviously) {
                 Log.i(TAG, "Non selection");
-                /*mPathPaint.setAlpha(Math.round(255 * mMainSmileyTransformaFraction));
-                mBackgroundPaint.setAlpha(Math.round(255 * mMainSmileyTransformaFraction));*/
-                mPathPaint.setColor((Integer) mColorEvaluator
-                        .evaluate(mMainSmileyTransformaFraction, mPlaceHolderFacePaint.getColor(), mDrawingColor));
-                mBackgroundPaint.setColor((Integer) mColorEvaluator
-                        .evaluate(mMainSmileyTransformaFraction, mPlaceHolderCirclePaint.getColor(),
+                mPathPaint.setColor((Integer) mColorEvaluator.evaluate(mMainSmileyTransformaFraction, mPlaceHolderFacePaint.getColor(), mDrawingColor));
+                mBackgroundPaint.setColor((Integer) mColorEvaluator.evaluate(mMainSmileyTransformaFraction, mPlaceHolderCirclePaint.getColor(),
                                 (mSelectedSmile == TERRIBLE || mPreviousSmile == TERRIBLE) ? mAngryColor : mNormalColor));
                 mScaleMatrix.reset();
                 mSmilePath.computeBounds(mScaleRect, true);
-                float nonSelectedScale = mFloatEvaluator.evaluate(
-                        mInterpolator.getInterpolation(mMainSmileyTransformaFraction), getScale(NONE), 1f);
-                mScaleMatrix.setScale(nonSelectedScale, nonSelectedScale,
-                        mScaleRect.centerX(), mScaleRect.centerY());
+                float nonSelectedScale = mFloatEvaluator.evaluate(mInterpolator.getInterpolation(mMainSmileyTransformaFraction), getScale(NONE), 1f);
+                mScaleMatrix.setScale(nonSelectedScale, nonSelectedScale,mScaleRect.centerX(), mScaleRect.centerY());
                 mDummyDrawPah.reset();
                 mDummyDrawPah.addPath(mSmilePath, mScaleMatrix);
 
-                canvas.drawCircle(mFaceCenter.x, mFaceCenter.y,
-                        nonSelectedScale * (mHeight / 2f), mBackgroundPaint);
+                canvas.drawCircle(/*mFaceCenter.x*/mCenterX, mFaceCenter.y,nonSelectedScale * (mHeight / 2f), mBackgroundPaint);
                 canvas.drawPath(mDummyDrawPah, mPathPaint);
             } else {
-                canvas.drawCircle(mFaceCenter.x, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
+                canvas.drawCircle(/*mFaceCenter.x*/mCenterX, mFaceCenter.y, mHeight / 2f, mBackgroundPaint);
                 canvas.drawPath(mSmilePath, mPathPaint);
             }
         }
@@ -674,7 +668,8 @@ public class SmileFace extends Face {
         if (smileys == null) {
             return;
         }
-        float actualTranslation = mFloatEvaluator.evaluate(fraction, fromRange, toRange);
+        float actualTranslation = mCenterX;
+        //float actualTranslation = mFloatEvaluator.evaluate(fraction, fromRange, toRange);
         point.x = actualTranslation;
         float trans = actualTranslation - centerY;
         if (fraction > 0.75f) {
