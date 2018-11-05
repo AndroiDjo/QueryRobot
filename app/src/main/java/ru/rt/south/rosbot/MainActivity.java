@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 public class MainActivity extends AppCompatActivity implements SmileFace.OnSmileySelectionListener, SmileFace.OnRatingSelectedListener {
 
@@ -21,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
         mSmileFace = (SmileFace) findViewById(R.id.smileView);
         mSmileFace.setOnSmileySelectionListener(this);
         mSmileFace.setOnRatingSelectedListener(this);
-        currentSmile = SmileFace.TERRIBLE;
+        currentSmile = SmileFace.OKAY;
         mSmileFace.setSelectedSmile(currentSmile);
     }
 
@@ -36,6 +38,10 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
         int id = item.getItemId();
         if (id == R.id.menu_sql_editor) {
             Intent intent = new Intent(MainActivity.this, DatabaseActivity.class);
+            startActivity(intent);
+            return true;
+        } else if (id == R.id.menu_arduino_communicate) {
+            Intent intent = new Intent(MainActivity.this, ArduinoCommunicate.class);
             startActivity(intent);
             return true;
         }
