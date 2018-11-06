@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Rosbot</string>
     <string name="sql_editor">SQL editor</string>
+    <string name="arduino_communicate">Arduino IO</string>
 
     <string name="smile_rating_terrible">Terrible</string>
     <string name="smile_rating_bad">Bad</string>
