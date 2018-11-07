@@ -4,6 +4,11 @@
     <item
         android:id="@+id/menu_sql_editor"
         android:orderInCategory="100"
-        android:title="@string/sql_editor"
+        android:title="@string/sql_editor_name"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_bt_console"
+        android:orderInCategory="200"
+        android:title="@string/bt_console_name"
         app:showAsAction="never" />
 </menu>
