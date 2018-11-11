@@ -43,6 +43,26 @@ public class BtConsole extends AppCompatActivity {
         setContentView(R.layout.activity_bt_console);
         tv = (TextView) findViewById(R.id.BTtextView);
         et = (EditText) findViewById(R.id.BTeditText);
+
+        JoystickView joystick = (JoystickView) findViewById(R.id.joystickView);
+        joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
+            @Override
+            public void onMove(int angle, int strength) {
+                console(Integer.toString(angle)+";");
+                int step = 3;
+                if (angle > 0 && angle < 180) {
+                    setVerServPos(verServDegr-step);
+                } else if (angle > 180 && angle < 360) {
+                    setVerServPos(verServDegr+ step);
+                }
+
+                if (angle > 90 && angle < 270) {
+                    setHorServPos(horServDegr+step);
+                } else if (angle > 270 || angle < 90) {
+                    setHorServPos(horServDegr-step);
+                }
+            }
+        });
     }
 
     public boolean BTinit()
@@ -236,5 +256,29 @@ public class BtConsole extends AppCompatActivity {
     public void horServMinus(View view) {
         horServDegr -= 5;
         btCmd("sh"+Integer.toString(horServDegr)+";");
+    }
+
+    public void getSensors(View view) {
+        btCmd("sonar;temp;");
+    }
+
+    private int servLimit(int degree) {
+        int result = degree;
+        if (degree < 0) {
+            result = 0;
+        } else if (degree > 180) {
+            result = 180;
+        }
+        return result;
+    }
+
+    public void setHorServPos(int degree) {
+        horServDegr = servLimit(degree);
+        btCmd("sh"+Integer.toString(horServDegr)+";");
+    }
+
+    public void setVerServPos(int degree) {
+        verServDegr = servLimit(degree);
+        btCmd("sv"+Integer.toString(verServDegr)+";");
     }
 }
