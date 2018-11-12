@@ -1,4 +1,4 @@
-package ru.rt.south.rosbot;
+package com.androidjo.queryrobot;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("ru.rt.south.rosbot", appContext.getPackageName());
+        assertEquals("com.androidjo.queryrobot", appContext.getPackageName());
     }
 }

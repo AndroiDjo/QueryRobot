@@ -1,4 +1,4 @@
-package ru.rt.south.rosbot;
+package com.androidjo.queryrobot;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;

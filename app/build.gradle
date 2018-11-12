@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "ru.rt.south.rosbot"
+        applicationId "com.androidjo.queryrobot"
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1

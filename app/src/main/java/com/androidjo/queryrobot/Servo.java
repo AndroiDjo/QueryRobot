@@ -1,4 +1,4 @@
-package ru.rt.south.rosbot;
+package com.androidjo.queryrobot;
 /*Управление сервоприводами*/
 public class Servo {
 }

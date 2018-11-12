@@ -1,4 +1,4 @@
-package ru.rt.south.rosbot;
+package com.androidjo.queryrobot;
 
 import android.content.Context;
 import android.os.Bundle;

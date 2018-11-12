@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Rosbot</string>
+    <string name="app_name">Query</string>
     <string name="sql_editor_name">SQL editor</string>
     <string name="bt_console_name">BT console</string>
 
