@@ -1,8 +1,6 @@
 package com.androidjo.queryrobot;
 
 import android.content.Intent;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.Voice;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,16 +9,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import java.util.Locale;
-
-public class MainActivity extends AppCompatActivity implements SmileFace.OnSmileySelectionListener, SmileFace.OnRatingSelectedListener, TextToSpeech.OnInitListener {
+public class MainActivity extends AppCompatActivity implements SmileFace.OnSmileySelectionListener, SmileFace.OnRatingSelectedListener {
 
     private SmileFace mSmileFace;
     private static final String TAG = "MainActivity";
     private int currentSmile;
     private TextView tv;
-    private TextToSpeech tts;
-    private Locale locale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,36 +26,6 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
         mSmileFace.setOnRatingSelectedListener(this);
         currentSmile = SmileFace.GOOD;
         mSmileFace.setSelectedSmile(currentSmile);
-        tts = new TextToSpeech(this, this);
-    }
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-
-            locale = new Locale("ru");
-
-            int result = tts.setLanguage(locale);
-            //int result = mTTS.setLanguage(Locale.getDefault());
-
-            if (result == TextToSpeech.LANG_MISSING_DATA
-                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e(TAG, "Извините, этот язык не поддерживается");
-            }
-
-        } else {
-            Log.e(TAG, "Ошибка при инициализации голоса");
-        }
-
-    }
-
-    @Override
-    public void onDestroy() {
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
-        }
-        super.onDestroy();
     }
 
     @Override
@@ -87,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
     }
 
     @Override
-    public void onSmileySelected(@Face.Smiley int smiley, boolean reselected) {
+    public void onSmileySelected(@SFace.Smiley int smiley, boolean reselected) {
         switch (smiley) {
             case SmileFace.BAD:
                 Log.i(TAG, "Bad");
@@ -122,21 +86,6 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
             currentSmile++;
         }
         mSmileFace.setSelectedSmile(currentSmile, true);
-        for (Voice v : tts.getVoices()) {
-            Log.i(TAG,v.getName());
-        }
-        String text = "Всем привет. Меня зовут Квэри.";
-        Voice v = new Voice("ru-ru-x-dfc#male_1-local", locale, Voice.QUALITY_VERY_HIGH, Voice.LATENCY_LOW, false, null);
-        tts.setVoice(v);
-        tts.speak(text, TextToSpeech.QUEUE_ADD, null);
-
-        v = new Voice("ru-ru-x-dfc#male_2-local", locale, Voice.QUALITY_VERY_HIGH, Voice.LATENCY_LOW, false, null);
-        tts.setVoice(v);
-        tts.speak(text, TextToSpeech.QUEUE_ADD, null);
-
-        v = new Voice("ru-ru-x-dfc#male_3-local", locale, Voice.QUALITY_VERY_HIGH, Voice.LATENCY_LOW, false, null);
-        tts.setVoice(v);
-        tts.speak(text, TextToSpeech.QUEUE_ADD, null);
     }
 
 }

@@ -14,7 +14,6 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
 import android.support.annotation.StringRes;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,7 +24,7 @@ import android.view.animation.OvershootInterpolator;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SmileFace extends Face {
+public class SmileFace extends SFace {
 
     private static final String TAG = "RatingView";
 

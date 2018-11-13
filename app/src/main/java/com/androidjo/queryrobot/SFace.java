@@ -16,7 +16,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class Face extends View {
+public abstract class SFace extends View {
 
     private static final String TAG = "BaseSmile";
 
@@ -47,15 +47,15 @@ public abstract class Face extends View {
 
     }
 
-    public Face(Context context) {
+    public SFace(Context context) {
         super(context);
     }
 
-    public Face(Context context, AttributeSet attrs) {
+    public SFace(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public Face(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SFace(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -160,14 +160,14 @@ public abstract class Face extends View {
                                          float angle, float length, int smileType) {
             float centerX = smileCenter.x;
             float centerY = smileCenter.y;
-            Point start = Face.getPointByAngle(smileCenter, roundDegreeOfAngle(angle - 180), length / 2);
+            Point start = SFace.getPointByAngle(smileCenter, roundDegreeOfAngle(angle - 180), length / 2);
             Smile smile = new Smile();
 
-            smile.LEFT_CURVE[0] = Face.getPointByAngle(start, roundDegreeOfAngle(angle - 270), width);
-            smile.LEFT_CURVE[1] = Face.getPointByAngle(start, roundDegreeOfAngle(angle - 90), width);
-            start = Face.getPointByAngle(start, angle, length / 6f);
-            smile.START_POINT = Face.getPointByAngle(start, roundDegreeOfAngle(angle - 90), width);
-            smile.BOTTOM_CURVE[2] = Face.getPointByAngle(start, roundDegreeOfAngle(angle - 270), width);
+            smile.LEFT_CURVE[0] = SFace.getPointByAngle(start, roundDegreeOfAngle(angle - 270), width);
+            smile.LEFT_CURVE[1] = SFace.getPointByAngle(start, roundDegreeOfAngle(angle - 90), width);
+            start = SFace.getPointByAngle(start, angle, length / 6f);
+            smile.START_POINT = SFace.getPointByAngle(start, roundDegreeOfAngle(angle - 90), width);
+            smile.BOTTOM_CURVE[2] = SFace.getPointByAngle(start, roundDegreeOfAngle(angle - 270), width);
             smile.LEFT_CURVE[2] = smile.START_POINT;
 
             fillInverseReflectionPoints(centerX, centerY, smile);
@@ -178,13 +178,13 @@ public abstract class Face extends View {
 
         private void fillInverseReflectionPoints(float centerX, float centerY, Smile smile) {
             // Generate all points by reflecting given inputs
-            smile.TOP_CURVE[0] = Face.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
+            smile.TOP_CURVE[0] = SFace.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
             smile.TOP_CURVE[1] = getReflectionPointX(centerX, smile.TOP_CURVE[0]);
             smile.TOP_CURVE[2] = getReflectionPointX(centerX, smile.START_POINT);
             smile.RIGHT_CURVE[0] = getReflectionPointX(centerX, smile.LEFT_CURVE[1]);
             smile.RIGHT_CURVE[1] = getReflectionPointX(centerX, smile.LEFT_CURVE[0]);
             smile.RIGHT_CURVE[2] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[2]);
-            smile.BOTTOM_CURVE[1] = Face.getNextPoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
+            smile.BOTTOM_CURVE[1] = SFace.getNextPoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
             smile.BOTTOM_CURVE[0] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[1]);
             switchX(smile.TOP_CURVE[1], smile.BOTTOM_CURVE[0]);
             inversePointY(centerY, smile.TOP_CURVE[1], smile.BOTTOM_CURVE[0]);
@@ -196,13 +196,13 @@ public abstract class Face extends View {
 
         private void fillReflectionPoints(float centerX, Smile smile) {
             // Generate all points by reflecting given inputs
-            smile.TOP_CURVE[0] = Face.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
+            smile.TOP_CURVE[0] = SFace.getNextPoint(smile.LEFT_CURVE[1], smile.START_POINT, new Point());
             smile.TOP_CURVE[1] = getReflectionPointX(centerX, smile.TOP_CURVE[0]);
             smile.TOP_CURVE[2] = getReflectionPointX(centerX, smile.START_POINT);
             smile.RIGHT_CURVE[0] = getReflectionPointX(centerX, smile.LEFT_CURVE[1]);
             smile.RIGHT_CURVE[1] = getReflectionPointX(centerX, smile.LEFT_CURVE[0]);
             smile.RIGHT_CURVE[2] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[2]);
-            smile.BOTTOM_CURVE[1] = Face.getNextPoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
+            smile.BOTTOM_CURVE[1] = SFace.getNextPoint(smile.LEFT_CURVE[0], smile.BOTTOM_CURVE[2], new Point());
             smile.BOTTOM_CURVE[0] = getReflectionPointX(centerX, smile.BOTTOM_CURVE[1]);
 
         }
@@ -270,13 +270,13 @@ public abstract class Face extends View {
 
         private Point getReflectionPointX(float centerX, Point source) {
             Point point = new Point();
-            Face.getNextPoint(source, new Point(centerX, source.y), point);
+            SFace.getNextPoint(source, new Point(centerX, source.y), point);
             return point;
         }
 
         private Point getReflectionPointY(float centerY, Point source) {
             Point point = new Point();
-            Face.getNextPoint(source, new Point(source.x, centerY), point);
+            SFace.getNextPoint(source, new Point(source.x, centerY), point);
             return point;
         }
     }

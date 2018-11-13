@@ -1,10 +1,16 @@
 package com.androidjo.queryrobot;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,10 +22,16 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.vision.CameraSource;
+import com.google.android.gms.vision.MultiProcessor;
+import com.google.android.gms.vision.Tracker;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
 
 public class BtConsole extends AppCompatActivity {
     private TextView tv;
@@ -28,7 +40,7 @@ public class BtConsole extends AppCompatActivity {
     private static final String TAG = "BtConsole";
 
     //BT
-    private final String DEVICE_ADDRESS="00:21:13:02:A0:88";
+    private final String DEVICE_ADDRESS = "00:21:13:02:A0:88";
     private final UUID PORT_UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");//Serial Port Service ID
     private BluetoothDevice device;
     private BluetoothSocket socket;
@@ -36,7 +48,7 @@ public class BtConsole extends AppCompatActivity {
     private InputStream inputStream;
     byte buffer[];
     boolean stopThread;
-    boolean deviceConnected=false;
+    boolean deviceConnected = false;
     long prevBtTime = System.nanoTime();
 
     //Servo
@@ -49,6 +61,17 @@ public class BtConsole extends AppCompatActivity {
     private static final int JOY_STR_MIN = 0;
     private static final int JOY_STR_MAX = 100;
 
+    //Camera & Face detector
+    private static final int RC_HANDLE_GMS = 9001;
+    private static final int RC_HANDLE_CAMERA_PERM = 2;
+    private CameraSource mCameraSource = null;
+    private static final int RES_X = 640;
+    private static final int RES_Y = 480;
+
+    //tmp
+    private float maxX = 0f;
+    private float maxY = 0f;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +83,7 @@ public class BtConsole extends AppCompatActivity {
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-                console(Integer.toString(strength)+";");
+                console(Integer.toString(strength) + ";");
 
                 if (angle > 90 && angle <= 270) {
                     verServDegr = mapRangeToDegree(angle, 91, 270, 50, 180);
@@ -76,13 +99,176 @@ public class BtConsole extends AppCompatActivity {
                     horServDegr = mapRangeToDegree(angle, 180, 360, 20, 180);
                 }
 
-                if ((horServDegr != horMiddleDegr || verServDegr != verMiddleDegr) && (System.nanoTime() - prevBtTime) / 1e6 > 50){
-                    Log.d(TAG, "v" + Integer.toString(verServDegr) + "h" + Integer.toString(horServDegr) + ";");
+                if ((horServDegr != horMiddleDegr || verServDegr != verMiddleDegr) && (System.nanoTime() - prevBtTime) / 1e6 > 50) {
+                    //Log.d(TAG, "v" + Integer.toString(verServDegr) + "h" + Integer.toString(horServDegr) + ";");
                     btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
                     prevBtTime = System.nanoTime();
                 }
             }
         });
+
+        int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        if (rc == PackageManager.PERMISSION_GRANTED) {
+            createCameraSource();
+        } else {
+            requestCameraPermission();
+        }
+    }
+
+    private void requestCameraPermission() {
+        Log.w(TAG, "Camera permission is not granted. Requesting permission");
+
+        final String[] permissions = new String[]{Manifest.permission.CAMERA};
+
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.CAMERA)) {
+            ActivityCompat.requestPermissions(this, permissions, RC_HANDLE_CAMERA_PERM);
+            return;
+        }
+
+        final Activity thisActivity = this;
+
+        View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ActivityCompat.requestPermissions(thisActivity, permissions,
+                        RC_HANDLE_CAMERA_PERM);
+            }
+        };
+    }
+
+    private void createCameraSource() {
+
+        Context context = getApplicationContext();
+        FaceDetector detector = new FaceDetector.Builder(context)
+                .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
+                .build();
+
+        detector.setProcessor(
+                new MultiProcessor.Builder<>(new GraphicFaceTrackerFactory())
+                        .build());
+
+        if (!detector.isOperational()) {
+            // Note: The first time that an app using face API is installed on a device, GMS will
+            // download a native library to the device in order to do detection.  Usually this
+            // completes before the app is run for the first time.  But if that download has not yet
+            // completed, then the above call will not detect any faces.
+            //
+            // isOperational() can be used to check if the required native library is currently
+            // available.  The detector will automatically become operational once the library
+            // download completes on device.
+            Log.w(TAG, "Face detector dependencies are not yet available.");
+        }
+
+        mCameraSource = new CameraSource.Builder(context, detector)
+                .setRequestedPreviewSize(RES_X, RES_Y)
+                .setFacing(CameraSource.CAMERA_FACING_FRONT)
+                .setRequestedFps(30.0f)
+                .build();
+    }
+
+    private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {
+        @Override
+        public Tracker<Face> create(Face face) {
+            return new GraphicFaceTracker();
+        }
+    }
+
+    private class GraphicFaceTracker extends Tracker<Face> {
+        /**
+         * Start tracking the detected face instance within the face overlay.
+         */
+        @Override
+        public void onNewItem(int faceId, Face item) {
+            Log.d(TAG, "x=" + Float.toString(item.getPosition().x) + "y=" + Float.toString(item.getPosition().y));
+        }
+
+        /**
+         * Update the position/characteristics of the face within the overlay.
+         */
+        @Override
+        public void onUpdate(FaceDetector.Detections<Face> detectionResults, Face face) {
+            float x = face.getPosition().x + face.getWidth() / 2f;
+            float y = face.getPosition().y + face.getHeight() / 2f;
+            Log.d(TAG, "x=" + Float.toString(x) + "y=" + Float.toString(y));
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+            moveServoToPos(Math.round(x), Math.round(y));
+        }
+
+        /**
+         * Hide the graphic when the corresponding face was not detected.  This can happen for
+         * intermediate frames temporarily (e.g., if the face was momentarily blocked from
+         * view).
+         */
+        @Override
+        public void onMissing(FaceDetector.Detections<Face> detectionResults) {
+            super.onMissing(detectionResults);
+            Log.d(TAG, "max x=" + Float.toString(maxX) + "y=" + Float.toString(maxY));
+        }
+
+        /**
+         * Called when the face is assumed to be gone for good. Remove the graphic annotation from
+         * the overlay.
+         */
+        @Override
+        public void onDone() {
+            super.onDone();
+        }
+    }
+
+    private void startCameraSource() {
+
+        // check that the device has play services available.
+        int code = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext());
+        if (code != ConnectionResult.SUCCESS) {
+            Dialog dlg = GoogleApiAvailability.getInstance().getErrorDialog(this, code, RC_HANDLE_GMS);
+            dlg.show();
+        }
+
+        if (mCameraSource != null) {
+            Log.d(TAG, "startCameraSource");
+            try {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                mCameraSource.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startCameraSource();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mCameraSource != null) {
+            mCameraSource.release();
+        }
+    }
+
+    private void moveServoToPos(int x, int y) {
+        horServDegr = mapRangeToDegree(x, 0, RES_X, 180, 20);
+        verServDegr = mapRangeToDegree(y, 0, RES_Y, 50, 180);
+        btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
     }
 
     private int mapRangeToDegree(int x, int in_min, int in_max, int out_min, int out_max) {
@@ -259,6 +445,7 @@ public class BtConsole extends AppCompatActivity {
         }
 
         try {
+            Log.d(TAG, cmd);
             outputStream.write(cmd.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
