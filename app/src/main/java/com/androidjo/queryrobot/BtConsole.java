@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
 
+import com.androidjo.queryrobot.ui.JoystickView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.CameraSource;

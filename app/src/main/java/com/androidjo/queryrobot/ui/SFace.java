@@ -1,4 +1,4 @@
-package com.androidjo.queryrobot;
+package com.androidjo.queryrobot.ui;
 
 import android.animation.FloatEvaluator;
 import android.content.Context;

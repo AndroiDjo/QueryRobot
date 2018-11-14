@@ -129,7 +129,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button2" />
 
-    <com.androidjo.queryrobot.JoystickView
+    <com.androidjo.queryrobot.ui.JoystickView
         android:id="@+id/joystickView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

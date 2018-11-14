@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.androidjo.queryrobot.ui.SFace;
+
 public class MainActivity extends AppCompatActivity implements SmileFace.OnSmileySelectionListener, SmileFace.OnRatingSelectedListener {
 
     private SmileFace mSmileFace;
@@ -79,13 +81,8 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
         Log.i(TAG, "Rated as: " + level + " - " + reselected);
     }
 
-    public void nextEmotion(View view) {
-        if (currentSmile == mSmileFace.SMILES_LIST[mSmileFace.SMILES_LIST.length-1]) {
-            currentSmile = mSmileFace.SMILES_LIST[0];
-        } else {
-            currentSmile++;
-        }
-        mSmileFace.setSelectedSmile(currentSmile, true);
+    public void doAction(View view) {
+
     }
 
 }

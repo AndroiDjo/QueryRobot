@@ -21,6 +21,8 @@ import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 
+import com.androidjo.queryrobot.ui.SFace;
+
 import java.util.HashMap;
 import java.util.Map;
 

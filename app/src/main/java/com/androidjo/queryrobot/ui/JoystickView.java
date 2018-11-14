@@ -1,4 +1,4 @@
-package com.androidjo.queryrobot;
+package com.androidjo.queryrobot.ui;
 
 
 import android.content.Context;
@@ -14,6 +14,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import com.androidjo.queryrobot.R;
 
 public class JoystickView extends View
         implements
