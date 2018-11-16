@@ -14,7 +14,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public class BtSingleton {
-    private static BtSingleton mInstance = new BtSingleton();
     private BluetoothAdapter mBluetoothAdapter;
     private static final String TAG = "BtSingleton";
     private TextView tv;
@@ -27,6 +26,8 @@ public class BtSingleton {
     private static boolean deviceConnected = false;
     private static byte buffer[];
     private static boolean stopThread;
+
+    private static BtSingleton mInstance = new BtSingleton();
 
     private BtSingleton(){
         // Private constructor to avoid new instances
@@ -50,7 +51,11 @@ public class BtSingleton {
         tv = view;
     }
 
-    private void startBt() {
+    public boolean isBtEnabled() {
+        return mBluetoothAdapter.isEnabled();
+    }
+
+    public void startBt() {
         if(BTinit())
         {
             if(BTconnect())
@@ -83,7 +88,7 @@ public class BtSingleton {
         if(mBluetoothAdapter != null && mBluetoothAdapter.isEnabled())
         {
             Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
-            if(!bondedDevices.isEmpty())
+            if(bondedDevices.isEmpty())
             {
                 console("Please Pair the Device first");
             }
@@ -171,6 +176,7 @@ public class BtSingleton {
     }
 
     public void btCmd (String cmd) {
+        if (!deviceConnected) startBt();
         try {
             console(cmd);
             outputStream.write(cmd.getBytes());

@@ -1,5 +1,6 @@
 package com.androidjo.queryrobot;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
     private static final String TAG = "MainActivity";
     private int currentSmile;
     private TextView tv;
+    private BtSingleton bts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +30,13 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
         mSmileFace.setOnRatingSelectedListener(this);
         currentSmile = SmileFace.GOOD;
         mSmileFace.setSelectedSmile(currentSmile);
+        bts = BtSingleton.getInstance();
+        if (!bts.isBtEnabled()) enableBt();
+    }
+
+    private void enableBt() {
+        Intent enableAdapter = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(enableAdapter, 0);
     }
 
     @Override

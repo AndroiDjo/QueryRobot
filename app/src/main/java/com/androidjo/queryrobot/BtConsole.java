@@ -37,6 +37,7 @@ import com.google.android.gms.vision.face.FaceDetector;
 public class BtConsole extends AppCompatActivity {
     private TextView tv;
     private EditText et;
+    private BtSingleton bts;
 
     private static final String TAG = "BtConsole";
 
@@ -79,12 +80,14 @@ public class BtConsole extends AppCompatActivity {
         setContentView(R.layout.activity_bt_console);
         tv = (TextView) findViewById(R.id.BTtextView);
         et = (EditText) findViewById(R.id.BTeditText);
+        bts = BtSingleton.getInstance();
+        bts.setConsoleTV(tv);
 
         JoystickView joystick = (JoystickView) findViewById(R.id.joystickView);
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-                console(Integer.toString(strength) + ";");
+                Log.d(TAG, Integer.toString(strength) + ";");
 
                 if (angle > 90 && angle <= 270) {
                     verServDegr = mapRangeToDegree(angle, 91, 270, 50, 180);
@@ -102,17 +105,26 @@ public class BtConsole extends AppCompatActivity {
 
                 if ((horServDegr != horMiddleDegr || verServDegr != verMiddleDegr) && (System.nanoTime() - prevBtTime) / 1e6 > 50) {
                     //Log.d(TAG, "v" + Integer.toString(verServDegr) + "h" + Integer.toString(horServDegr) + ";");
-                    btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
+                    bts.btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
                     prevBtTime = System.nanoTime();
                 }
             }
         });
 
+    }
+
+    public void initCamera(View view) {
         int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         if (rc == PackageManager.PERMISSION_GRANTED) {
             createCameraSource();
         } else {
             requestCameraPermission();
+        }
+    }
+
+    public void stopCamera(View view) {
+        if (mCameraSource != null) {
+            mCameraSource.release();
         }
     }
 
@@ -261,15 +273,13 @@ public class BtConsole extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mCameraSource != null) {
-            mCameraSource.release();
-        }
+        stopCamera(null);
     }
 
     private void moveServoToPos(int x, int y) {
         horServDegr = mapRangeToDegree(x, 0, RES_X, 180, 20);
         verServDegr = mapRangeToDegree(y, 0, RES_Y, 50, 180);
-        btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
+        bts.btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
     }
 
     private int mapRangeToDegree(int x, int in_min, int in_max, int out_min, int out_max) {
@@ -278,160 +288,19 @@ public class BtConsole extends AppCompatActivity {
         return servLimit(result);
     }
 
-    public boolean BTinit()
-    {
-        boolean found=false;
-        BluetoothAdapter bluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            Toast.makeText(getApplicationContext(),"Device doesnt Support Bluetooth",Toast.LENGTH_SHORT).show();
-        }
-        if(!bluetoothAdapter.isEnabled())
-        {
-            Intent enableAdapter = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableAdapter, 0);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        Set<BluetoothDevice> bondedDevices = bluetoothAdapter.getBondedDevices();
-        if(bondedDevices.isEmpty())
-        {
-            Toast.makeText(getApplicationContext(),"Please Pair the Device first",Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
-            for (BluetoothDevice iterator : bondedDevices)
-            {
-                if(iterator.getAddress().equals(DEVICE_ADDRESS))
-                {
-                    device=iterator;
-                    found=true;
-                    break;
-                }
-            }
-        }
-        return found;
-    }
-
-    public boolean BTconnect()
-    {
-        boolean connected=true;
-        try {
-            socket = device.createRfcommSocketToServiceRecord(PORT_UUID);
-            socket.connect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            connected=false;
-        }
-        if(connected)
-        {
-            try {
-                outputStream=socket.getOutputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                inputStream=socket.getInputStream();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-
-        return connected;
-    }
-
-    void beginListenForData()
-    {
-        final Handler handler = new Handler();
-        stopThread = false;
-        buffer = new byte[1024];
-        Thread thread  = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                while(!Thread.currentThread().isInterrupted() && !stopThread)
-                {
-                    try
-                    {
-                        int byteCount = inputStream.available();
-                        if(byteCount > 0)
-                        {
-                            byte[] rawBytes = new byte[byteCount];
-                            inputStream.read(rawBytes);
-                            final String string=new String(rawBytes,"UTF-8");
-                            handler.post(new Runnable() {
-                                public void run()
-                                {
-                                    Log.d(TAG, string);
-                                    console(string);
-                                }
-                            });
-
-                        }
-                    }
-                    catch (IOException ex)
-                    {
-                        stopThread = true;
-                    }
-                }
-            }
-        });
-
-        thread.start();
-    }
-
-    public void btMain() {
-        if(BTinit())
-        {
-            if(BTconnect())
-            {
-                deviceConnected=true;
-                beginListenForData();
-                console("\nConnection Opened!\n");
-            }
-
-        }
-    }
-
-    private void console(String msg) {
-        if (tv!=null) {
-            tv.append(msg);
-        }
-    }
-
     public void btConnect(View view) {
-        btMain();
+        bts.startBt();
     }
 
     public void btDisconnect(View view) {
-        try {
-            stopThread = true;
-            outputStream.close();
-            inputStream.close();
-            socket.close();
-            deviceConnected = false;
-            console("\nConnection Closed!\n");
-        }
-        catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        bts.stopBt();
     }
 
     public void onClickSend(View view) {
-        if (!deviceConnected) {
-            btMain();
-            return;
-        }
-
         String string = et.getText().toString();
         string.concat("\n");
         et.getText().clear();
-        btCmd(string);
-        console("\nSent Data:"+string+"\n");
+        bts.btCmd(string);
 
     }
 
@@ -439,42 +308,28 @@ public class BtConsole extends AppCompatActivity {
         tv.setText("");
     }
 
-    public void btCmd (String cmd) {
-        if (!deviceConnected) {
-            btMain();
-            return;
-        }
-
-        try {
-            Log.d(TAG, cmd);
-            outputStream.write(cmd.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void verServPlus(View view) {
         verServDegr += 5;
-        btCmd("sv"+Integer.toString(verServDegr)+";");
+        bts.btCmd("sv"+Integer.toString(verServDegr)+";");
     }
 
     public void verServMinus(View view) {
         verServDegr -= 5;
-        btCmd("sv"+Integer.toString(verServDegr)+";");
+        bts.btCmd("sv"+Integer.toString(verServDegr)+";");
     }
 
     public void horServPlus(View view) {
         horServDegr += 5;
-        btCmd("sh"+Integer.toString(horServDegr)+";");
+        bts.btCmd("sh"+Integer.toString(horServDegr)+";");
     }
 
     public void horServMinus(View view) {
         horServDegr -= 5;
-        btCmd("sh"+Integer.toString(horServDegr)+";");
+        bts.btCmd("sh"+Integer.toString(horServDegr)+";");
     }
 
     public void getSensors(View view) {
-        btCmd("sonar;temp;");
+        bts.btCmd("sonar;temp;");
     }
 
     private int servLimit(int degree) {
@@ -489,11 +344,11 @@ public class BtConsole extends AppCompatActivity {
 
     public void setHorServPos(int degree) {
         horServDegr = servLimit(degree);
-        btCmd("sh"+Integer.toString(horServDegr)+";");
+        bts.btCmd("sh"+Integer.toString(horServDegr)+";");
     }
 
     public void setVerServPos(int degree) {
         verServDegr = servLimit(degree);
-        btCmd("sv"+Integer.toString(verServDegr)+";");
+        bts.btCmd("sv"+Integer.toString(verServDegr)+";");
     }
 }
