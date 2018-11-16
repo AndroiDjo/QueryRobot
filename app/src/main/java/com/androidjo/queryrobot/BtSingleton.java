@@ -177,11 +177,13 @@ public class BtSingleton {
 
     public void btCmd (String cmd) {
         if (!deviceConnected) startBt();
-        try {
-            console(cmd);
-            outputStream.write(cmd.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (deviceConnected) {
+            try {
+                console(cmd);
+                outputStream.write(cmd.getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
