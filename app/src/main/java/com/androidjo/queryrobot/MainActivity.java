@@ -10,13 +10,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.androidjo.queryrobot.ui.SFace;
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends AppCompatActivity implements SmileFace.OnSmileySelectionListener, SmileFace.OnRatingSelectedListener {
-
-    private SmileFace mSmileFace;
     private static final String TAG = "MainActivity";
-    private int currentSmile;
     private TextView tv;
     private BtSingleton bts;
 
@@ -25,11 +21,6 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tv = (TextView) findViewById(R.id.textView);
-        mSmileFace = (SmileFace) findViewById(R.id.smileView);
-        mSmileFace.setOnSmileySelectionListener(this);
-        mSmileFace.setOnRatingSelectedListener(this);
-        currentSmile = SmileFace.GOOD;
-        mSmileFace.setSelectedSmile(currentSmile);
         bts = BtSingleton.getInstance();
         if (!bts.isBtEnabled()) enableBt();
     }
@@ -59,35 +50,6 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onSmileySelected(@SFace.Smiley int smiley, boolean reselected) {
-        switch (smiley) {
-            case SmileFace.BAD:
-                Log.i(TAG, "Bad");
-                break;
-            case SmileFace.GOOD:
-                Log.i(TAG, "Good");
-                break;
-            case SmileFace.GREAT:
-                Log.i(TAG, "Great");
-                break;
-            case SmileFace.OKAY:
-                Log.i(TAG, "Okay");
-                break;
-            case SmileFace.TERRIBLE:
-                Log.i(TAG, "Terrible");
-                break;
-            case SmileFace.NONE:
-                Log.i(TAG, "None");
-                break;
-        }
-    }
-
-    @Override
-    public void onRatingSelected(int level, boolean reselected) {
-        Log.i(TAG, "Rated as: " + level + " - " + reselected);
     }
 
     public void doAction(View view) {
