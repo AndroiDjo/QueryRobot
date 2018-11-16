@@ -187,7 +187,12 @@ public class BtSingleton {
 
     private void console(String msg) {
         if (tv!=null) {
-            tv.append(msg);
+            final String s = msg;
+            tv.post(new Runnable() {
+                public void run() {
+                    tv.append(s);
+                }
+            });
         }
         Log.i(TAG, msg);
     }

@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,8 +66,9 @@ public class BtConsole extends AppCompatActivity {
     private static final int RC_HANDLE_GMS = 9001;
     private static final int RC_HANDLE_CAMERA_PERM = 2;
     private CameraSource mCameraSource = null;
-    private static final int RES_X = 640;
-    private static final int RES_Y = 480;
+    private FaceDetector detector = null;
+    private static final int RES_X = 320;
+    private static final int RES_Y = 240;
 
     //tmp
     private float maxX = 0f;
@@ -117,6 +117,7 @@ public class BtConsole extends AppCompatActivity {
         int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         if (rc == PackageManager.PERMISSION_GRANTED) {
             createCameraSource();
+            startCameraSource();
         } else {
             requestCameraPermission();
         }
@@ -124,7 +125,10 @@ public class BtConsole extends AppCompatActivity {
 
     public void stopCamera(View view) {
         if (mCameraSource != null) {
-            mCameraSource.release();
+            try {
+                mCameraSource.release();
+            } catch (NullPointerException ignored) {  }
+            mCameraSource = null;
         }
     }
 
@@ -153,7 +157,7 @@ public class BtConsole extends AppCompatActivity {
     private void createCameraSource() {
 
         Context context = getApplicationContext();
-        FaceDetector detector = new FaceDetector.Builder(context)
+        detector = new FaceDetector.Builder(context)
                 .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
                 .build();
 
