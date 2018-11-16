@@ -33,6 +33,7 @@ public class BtConsole extends AppCompatActivity {
     private TextView tv;
     private EditText et;
     private BtSingleton bts;
+    private Spine spine;
 
     private static final String TAG = "BtConsole";
 
@@ -78,6 +79,7 @@ public class BtConsole extends AppCompatActivity {
         et = (EditText) findViewById(R.id.BTeditText);
         bts = BtSingleton.getInstance();
         bts.setConsoleTV(tv);
+        spine = Spine.getInstance();
 
         JoystickView joystick = (JoystickView) findViewById(R.id.joystickView);
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
@@ -101,7 +103,8 @@ public class BtConsole extends AppCompatActivity {
 
                 if ((horServDegr != horMiddleDegr || verServDegr != verMiddleDegr) && (System.nanoTime() - prevBtTime) / 1e6 > 50) {
                     //Log.d(TAG, "v" + Integer.toString(verServDegr) + "h" + Integer.toString(horServDegr) + ";");
-                    bts.btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
+                    //bts.btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
+                    spine.turnHead(horServDegr, verServDegr);
                     prevBtTime = System.nanoTime();
                 }
             }

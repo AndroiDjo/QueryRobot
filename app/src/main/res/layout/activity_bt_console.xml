@@ -6,7 +6,16 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     tools:context=".BtConsole">
-<ScrollView
+
+    <com.androidjo.queryrobot.ui.JoystickView
+        android:id="@+id/joystickView"
+        android:layout_width="wrap_content"
+        android:layout_height="150dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="511dp" />
+
+    <ScrollView
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
 
@@ -90,18 +99,6 @@
             android:onClick="getSensors"
             android:text="Sensors" />
 
-        <android.support.constraint.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.androidjo.queryrobot.ui.JoystickView
-                android:id="@+id/joystickView"
-                android:layout_width="wrap_content"
-                android:layout_height="250dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-        </android.support.constraint.ConstraintLayout>
-
         <Button
             android:id="@+id/button9"
             android:layout_width="match_parent"
@@ -118,4 +115,5 @@
 
     </LinearLayout>
 </ScrollView>
+
 </LinearLayout>
