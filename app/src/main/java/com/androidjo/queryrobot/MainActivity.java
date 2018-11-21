@@ -1,5 +1,6 @@
 package com.androidjo.queryrobot;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,23 +10,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements SmileFace.OnSmileySelectionListener, SmileFace.OnRatingSelectedListener {
+public class MainActivity extends AppCompatActivity {
 
-    private SmileFace mSmileFace;
     private static final String TAG = "MainActivity";
-    private int currentSmile;
     private TextView tv;
+    private BtSingleton bts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         tv = (TextView) findViewById(R.id.textView);
-        mSmileFace = (SmileFace) findViewById(R.id.smileView);
-        mSmileFace.setOnSmileySelectionListener(this);
-        mSmileFace.setOnRatingSelectedListener(this);
-        currentSmile = SmileFace.GOOD;
-        mSmileFace.setSelectedSmile(currentSmile);
+        bts = BtSingleton.getInstance();
+        if (!bts.isBtEnabled()) enableBt();
+    }
+
+    private void enableBt() {
+        Intent enableAdapter = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+        startActivityForResult(enableAdapter, 0);
     }
 
     @Override
@@ -50,42 +52,8 @@ public class MainActivity extends AppCompatActivity implements SmileFace.OnSmile
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onSmileySelected(@SFace.Smiley int smiley, boolean reselected) {
-        switch (smiley) {
-            case SmileFace.BAD:
-                Log.i(TAG, "Bad");
-                break;
-            case SmileFace.GOOD:
-                Log.i(TAG, "Good");
-                break;
-            case SmileFace.GREAT:
-                Log.i(TAG, "Great");
-                break;
-            case SmileFace.OKAY:
-                Log.i(TAG, "Okay");
-                break;
-            case SmileFace.TERRIBLE:
-                Log.i(TAG, "Terrible");
-                break;
-            case SmileFace.NONE:
-                Log.i(TAG, "None");
-                break;
-        }
-    }
+    public void doAction(View view) {
 
-    @Override
-    public void onRatingSelected(int level, boolean reselected) {
-        Log.i(TAG, "Rated as: " + level + " - " + reselected);
-    }
-
-    public void nextEmotion(View view) {
-        if (currentSmile == mSmileFace.SMILES_LIST[mSmileFace.SMILES_LIST.length-1]) {
-            currentSmile = mSmileFace.SMILES_LIST[0];
-        } else {
-            currentSmile++;
-        }
-        mSmileFace.setSelectedSmile(currentSmile, true);
     }
 
 }

@@ -1,15 +1,18 @@
 package com.androidjo.queryrobot;
 
-import android.content.Context;
-import android.os.Bundle;
-
 /*Мозги*/
 public class Mind {
 
-    private SQLitecon sqlcon;
+    private static Mind mInstance = new Mind();
 
-    public Mind(Context context) {
-        sqlcon = SQLitecon.getInstance(context);
+    private Mind() {
+    }
+
+    public static Mind getInstance(){
+        return mInstance;
+    }
+
+    public void startThinking() {
 
     }
 
