@@ -8,21 +8,34 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Toast;
+
+import com.airbnb.lottie.LottieAnimationView;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private TextView tv;
     private BtSingleton bts;
+    private LottieAnimationView lav;
+    private Mind mind;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tv = (TextView) findViewById(R.id.textView);
+        lav = (LottieAnimationView) findViewById(R.id.animation_view);
+
         bts = BtSingleton.getInstance();
         if (!bts.isBtEnabled()) enableBt();
+        bts.startBt();
+        popUp("Bluetooth started");
+
+        mind = Mind.getInstance();
+        mind.startThinking();
+    }
+
+    private void popUp (String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     private void enableBt() {
@@ -53,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void doAction(View view) {
-
+        lav.setAnimation(getResources().getIdentifier("curved_line_animation","raw", getPackageName()));
+        lav.playAnimation();
     }
 
 }

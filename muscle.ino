@@ -1,4 +1,5 @@
-#include <VarSpeedServo.h>
+//include <VarSpeedServo.h>
+#include <Servo.h>
 #include <NewPing.h>
 #include <EEPROM.h>
 
@@ -18,15 +19,15 @@ int LED = 13;
 String input_string = "";
 
 // горизонтальный сервопривод
-int SERV_H = 11; // пин
-VarSpeedServo servh;
-int servhd = 0; // градус поворота
+//int SERV_H = 11; // пин
+//VarSpeedServo servh;
+//int servhd = 0; // градус поворота
 
 // вертикальный сервопривод
 int SERV_VL = 9; // левый
 int SERV_VR = 10; // правый
-VarSpeedServo servvl;
-VarSpeedServo servvr;
+Servo servvl;
+Servo servvr;
 int servvd = 0; // градус поворота
 
 int SERVO_SPEED = 100; // скорость поворота серво
@@ -62,17 +63,17 @@ void doCommand(String command)
 {
   String cmd = command;
   
-  Serial.println("doCommand:"+cmd);
+  //Serial.println("doCommand:"+cmd);
   
   if (cmd.equals("1"))
   {
     digitalWrite(LED, HIGH);
-    Serial.println("LED is ON");
+    //Serial.println("LED is ON");
   }
   else if (cmd.equals("0"))
   {
     digitalWrite(LED, LOW);
-    Serial.println("LED is OFF");
+    //Serial.println("LED is OFF");
   }
   else if (cmd.startsWith("sh")) // сервопривод горизонтальный
   {
@@ -86,10 +87,10 @@ void doCommand(String command)
   {
     cmd.replace("sv", "");
     servvd = getVServoDegree(cmd.toInt());
-    servvl.write(EEPROM[servvd], SERVO_SPEED);
-    servvr.write(EEPROM[servvd+100], SERVO_SPEED);
-    Serial.print("Servo set to ");
-    Serial.println(servvd);
+    servvl.write(EEPROM[servvd]);
+    servvr.write(EEPROM[servvd+100]);
+    //Serial.print("Servo set to ");
+    //Serial.println(servvd);
   }
   else if (cmd.equals("sonar"))
   {
