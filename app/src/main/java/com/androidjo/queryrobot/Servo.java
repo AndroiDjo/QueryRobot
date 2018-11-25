@@ -5,6 +5,8 @@ public class Servo {
     private String cmdPrefix;
     private int lowLimit;
     private int highLimit;
+    private int currentDegree = 0;
+    private int prevDegree = -1;
 
     public Servo() {
         bts = BtSingleton.getInstance();
@@ -33,7 +35,20 @@ public class Servo {
         return result;
     }
 
+    private void sendCmd(int degree) {
+        if (prevDegree!=degree) {
+            bts.btCmd(cmdPrefix + Integer.toString(degree) + ";");
+            prevDegree = degree;
+        }
+    }
+
     public void move(int degree) {
-        bts.btCmd(cmdPrefix + Integer.toString(getDegreeWithLimits(degree)) + ";");
+        currentDegree = getDegreeWithLimits(degree);
+        sendCmd(currentDegree);
+    }
+
+    public void step(int step) {
+        currentDegree = getDegreeWithLimits(currentDegree+step);
+        sendCmd(currentDegree);
     }
 }

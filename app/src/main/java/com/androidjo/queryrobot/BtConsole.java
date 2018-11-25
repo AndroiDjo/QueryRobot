@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -88,11 +89,11 @@ public class BtConsole extends AppCompatActivity {
                 Log.d(TAG, Integer.toString(strength) + ";");
 
                 if (angle > 90 && angle <= 270) {
-                    verServDegr = mapRangeToDegree(angle, 91, 270, 50, 180);
+                    verServDegr = mapRangeToDegree(angle, 91, 270, 99, 0);
                 } else if (angle <= 90) {
-                    verServDegr = mapRangeToDegree(angle, 0, 90, 115, 50);
+                    verServDegr = mapRangeToDegree(angle, 0, 90, 0, 50);
                 } else if (angle > 270) {
-                    verServDegr = mapRangeToDegree(angle, 271, 360, 180, 115);
+                    verServDegr = mapRangeToDegree(angle, 271, 360, 50, 99);
                 }
 
                 if (angle < 180) {
@@ -280,9 +281,23 @@ public class BtConsole extends AppCompatActivity {
     }
 
     private void moveServoToPos(int x, int y) {
-        horServDegr = mapRangeToDegree(x, 0, RES_X, 180, 20);
-        verServDegr = mapRangeToDegree(y, 0, RES_Y, 50, 180);
-        bts.btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
+        //horServDegr = mapRangeToDegree(x, 0, RES_X, 180, 20);
+        //verServDegr = mapRangeToDegree(y, 0, RES_Y, 99, 0);
+
+            int step = 1;
+            int affordable = RES_Y / 15;
+
+            if (y > RES_Y / 2 + affordable) {
+                spine.turnHeadVertical(-1*step);
+                Log.d(TAG, "DOWN");
+            } else if (y < RES_Y / 2 - affordable) {
+                Log.d(TAG, "UP");
+                spine.turnHeadVertical(step);
+            } else Log.d(TAG, "STAY");
+
+
+        //Log.d(TAG, "x="+Integer.toString(x)+" y="+Integer.toString(y));
+        //spine.turnHead(horServDegr, verServDegr);
     }
 
     private int mapRangeToDegree(int x, int in_min, int in_max, int out_min, int out_max) {
@@ -293,6 +308,7 @@ public class BtConsole extends AppCompatActivity {
 
     public void btConnect(View view) {
         bts.startBt();
+        spine.turnHead(0,50);
     }
 
     public void btDisconnect(View view) {

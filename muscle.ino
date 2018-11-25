@@ -1,9 +1,10 @@
 #include <VarSpeedServo.h>
 #include <NewPing.h>
+#include <EEPROM.h>
 
 // сонар
-#define TRIGGER_PIN 8
-#define ECHO_PIN 9
+#define TRIGGER_PIN 7
+#define ECHO_PIN 6
 #define MAX_DISTANCE 200
 
 #define TEMP_PIN A0 // термистор
@@ -17,13 +18,15 @@ int LED = 13;
 String input_string = "";
 
 // горизонтальный сервопривод
-int SERV_H = 10; // пин
+int SERV_H = 11; // пин
 VarSpeedServo servh;
 int servhd = 0; // градус поворота
 
 // вертикальный сервопривод
-int SERV_V = 11; // пин
-VarSpeedServo servv;
+int SERV_VL = 9; // левый
+int SERV_VR = 10; // правый
+VarSpeedServo servvl;
+VarSpeedServo servvr;
 int servvd = 0; // градус поворота
 
 int SERVO_SPEED = 100; // скорость поворота серво
@@ -35,8 +38,8 @@ void setup()
   Serial.begin(9600);
   pinMode(LED, OUTPUT);
   digitalWrite(LED, HIGH);
-  servh.attach(SERV_H);
-  servv.attach(SERV_V);
+  servvl.attach(SERV_VL);
+  servvr.attach(SERV_VR);
 }
 
 void loop()
@@ -73,17 +76,18 @@ void doCommand(String command)
   }
   else if (cmd.startsWith("sh")) // сервопривод горизонтальный
   {
-    cmd.replace("sh", "");
+    /*cmd.replace("sh", "");
     servhd = getHServoDegree(cmd.toInt());
     servh.write(servhd, SERVO_SPEED);
     Serial.print("Servo set to ");
-    Serial.println(servhd);
+    Serial.println(servhd);*/
   }
   else if (cmd.startsWith("sv")) // сервопривод вертикальный
   {
     cmd.replace("sv", "");
     servvd = getVServoDegree(cmd.toInt());
-    servv.write(servvd, SERVO_SPEED);
+    servvl.write(EEPROM[servvd], SERVO_SPEED);
+    servvr.write(EEPROM[servvd+100], SERVO_SPEED);
     Serial.print("Servo set to ");
     Serial.println(servvd);
   }
@@ -121,11 +125,11 @@ int getHServoDegree(int d)
 int getVServoDegree(int d)
 {
   int result = d; 
-  if (d > 179) {
-    result = 179;
+  if (d > 99) {
+    result = 99;
   }
-  else if (d < 50) {
-    result = 50;
+  else if (d < 0) {
+    result = 0;
   }
   return result;
 }

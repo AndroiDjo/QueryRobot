@@ -8,7 +8,7 @@ public class Spine {
 
     private Spine() {
         horServo = new Servo("sh", 20, 180);
-        verServo = new Servo("sv", 30, 180);
+        verServo = new Servo("sv", 0, 99);
     }
 
     public static Spine getInstance(){
@@ -16,7 +16,11 @@ public class Spine {
     }
 
     public void turnHead(int horD, int verD) {
-        horServo.move(horD);
+        //horServo.move(horD);
         verServo.move(verD);
+    }
+
+    public void turnHeadVertical(int step) {
+        verServo.step(step);
     }
 }
