@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class BtSingleton {
     private BluetoothAdapter mBluetoothAdapter;
@@ -32,7 +33,6 @@ public class BtSingleton {
     private BtSingleton(){
         // Private constructor to avoid new instances
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        startBt();
     }
 
     public static BtSingleton getInstance(){
@@ -55,17 +55,34 @@ public class BtSingleton {
         return mBluetoothAdapter.isEnabled();
     }
 
-    public void startBt() {
-        if(BTinit())
-        {
-            if(BTconnect())
-            {
-                deviceConnected=true;
-                beginListenForData();
-                console("\nConnection Opened!\n");
-            }
+    public boolean isArduinoConnected() {
+        return deviceConnected;
+    }
 
+    public void startBt() {
+        if(BTinit()) {
+            if(BTconnect()) {
+                deviceConnected=true;
+                console("Arduino connected");
+            }
         }
+    }
+
+    public CallbackTask startBtCallback(Callback cb) {
+        CallbackTask cbt = new CallbackTask(new Runnable() {
+            public void run() {
+                while (!Thread.currentThread().isInterrupted() && !stopThread && !deviceConnected) {
+                    try {
+                        startBt();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        stopThread = true;
+                    }
+                }
+            }
+        }, cb);
+
+        return cbt;
     }
 
     public void stopBt() {
@@ -136,63 +153,54 @@ public class BtSingleton {
         return connected;
     }
 
-    private void beginListenForData()
-    {
-        final Handler handler = new Handler();
-        stopThread = false;
-        buffer = new byte[1024];
-        Thread thread  = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                while(!Thread.currentThread().isInterrupted() && !stopThread)
-                {
-                    try
-                    {
-                        int byteCount = inputStream.available();
-                        if(byteCount > 0)
-                        {
-                            byte[] rawBytes = new byte[byteCount];
-                            inputStream.read(rawBytes);
-                            final String string=new String(rawBytes,"UTF-8");
-                            handler.post(new Runnable() {
-                                public void run()
-                                {
-                                    console(string);
-                                }
-                            });
-
-                        }
-                    }
-                    catch (IOException ex)
-                    {
-                        stopThread = true;
-                    }
-                }
+    public Runnable getRunnableBtListener() {
+        Runnable r = new Runnable() {
+            public void run() {
+                beginListenForData();
             }
-        });
-
-        thread.start();
+        };
+        return r;
     }
 
-    public void btCmd (String cmd) {
-        if (!deviceConnected) startBt();
-        if (deviceConnected) {
-            try {
-                console(cmd);
-                outputStream.write(cmd.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
+    private void beginListenForData()
+    {
+        stopThread = false;
+        buffer = new byte[1024];
+        while(!Thread.currentThread().isInterrupted() && !stopThread)
+        {
+            try
+            {
+                int byteCount = inputStream.available();
+                if(byteCount > 0)
+                {
+                    byte[] rawBytes = new byte[byteCount];
+                    inputStream.read(rawBytes);
+                    final String string=new String(rawBytes,"UTF-8");
+                    console(string);
+                }
+            }
+            catch (IOException ex)
+            {
+                stopThread = true;
             }
         }
     }
 
-    private void console(String msg) {
+    public void btCmd (String cmd) {
+        try {
+            console(cmd);
+            outputStream.write(cmd.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void console(String msg) {
         if (tv!=null) {
             final String s = msg;
             tv.post(new Runnable() {
                 public void run() {
-                    tv.append(s);
+                    tv.append(s+"\n");
                 }
             });
         }

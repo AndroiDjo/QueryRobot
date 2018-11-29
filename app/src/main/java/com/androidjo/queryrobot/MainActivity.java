@@ -8,30 +8,56 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private BtSingleton bts;
+    private Spine spine;
     private LottieAnimationView lav;
-    private Mind mind;
+    private TextView tv;
+    private ExecutorService exService;
+
+    private String[] animList = {"twirl_particles_loading", "infinite_rainbow", "empty_list", "curved_line_animation", "threed_circle_loader"};
+    private int animIndex = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         lav = (LottieAnimationView) findViewById(R.id.animation_view);
+        tv = (TextView) findViewById(R.id.textView);
+        exService = Executors.newCachedThreadPool();
+        initFeelings();
+        startThinking();
+    }
 
+    private void initFeelings() {
         bts = BtSingleton.getInstance();
+        bts.setConsoleTV(tv);
+        spine = Spine.getInstance();
         if (!bts.isBtEnabled()) enableBt();
-        bts.startBt();
-        popUp("Bluetooth started");
+        if (!bts.isArduinoConnected()) {
+            bts.console("Connecting to Arduino...");
+            CallbackTask cbt = bts.startBtCallback(new Callback() {
+                public void complete() {
+                    exService.submit(bts.getRunnableBtListener());
+                    spine.turnHead(0, 60);
+                }
+            });
+            exService.submit(cbt);
+        }
+    }
 
-        mind = Mind.getInstance();
-        mind.startThinking();
+    private void startThinking() {
+
     }
 
     private void popUp (String msg) {
@@ -43,31 +69,11 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(enableAdapter, 0);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.menu_sql_editor) {
-            Intent intent = new Intent(MainActivity.this, DatabaseActivity.class);
-            startActivity(intent);
-            return true;
-        }
-        else if (id == R.id.menu_bt_console) {
-            Intent intent = new Intent(MainActivity.this, BtConsole.class);
-            startActivity(intent);
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     public void doAction(View view) {
-        lav.setAnimation(getResources().getIdentifier("curved_line_animation","raw", getPackageName()));
+        lav.setAnimation(getResources().getIdentifier(animList[animIndex],"raw", getPackageName()));
         lav.playAnimation();
+        if (animIndex >= animList.length-1) animIndex = 0;
+        else animIndex++;
     }
 
 }
