@@ -4,14 +4,12 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.androidjo.queryrobot.vision.RoboVision;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private BtSingleton bts;
     private Spine spine;
+    private RoboVision rv;
     private LottieAnimationView lav;
     private TextView tv;
     private ExecutorService exService;
@@ -43,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         bts = BtSingleton.getInstance();
         bts.setConsoleTV(tv);
         spine = Spine.getInstance();
+        rv = RoboVision.getInstance();
         if (!bts.isBtEnabled()) enableBt();
         if (!bts.isArduinoConnected()) {
             bts.console("Connecting to Arduino...");
@@ -70,10 +70,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void doAction(View view) {
-        lav.setAnimation(getResources().getIdentifier(animList[animIndex],"raw", getPackageName()));
+        /*lav.setAnimation(getResources().getIdentifier(animList[animIndex],"raw", getPackageName()));
         lav.playAnimation();
         if (animIndex >= animList.length-1) animIndex = 0;
-        else animIndex++;
+        else animIndex++;*/
+        rv.initCamera(this);
+    }
+
+    public void stopAction(View view) {
+        rv.stopCamera();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        rv.stopCamera();
     }
 
 }

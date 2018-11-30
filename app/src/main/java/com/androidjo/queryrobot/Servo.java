@@ -28,6 +28,10 @@ public class Servo {
         highLimit = high;
     }
 
+    public int getCurrentDegree() {
+        return currentDegree;
+    }
+
     private int getDegreeWithLimits(int degree) {
         int result = degree;
         if (result < lowLimit) result = lowLimit;

@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
+import android.text.Layout;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -188,7 +189,6 @@ public class BtSingleton {
 
     public void btCmd (String cmd) {
         try {
-            console(cmd);
             outputStream.write(cmd.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
@@ -198,9 +198,21 @@ public class BtSingleton {
     public void console(String msg) {
         if (tv!=null) {
             final String s = msg;
+            final int lineAmount = 20;
             tv.post(new Runnable() {
                 public void run() {
                     tv.append(s+"\n");
+                    Layout l = tv.getLayout();
+                    if (l!=null) {
+                        final int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
+                        if (scrollAmount > 0)
+                            tv.scrollTo(0, scrollAmount);
+                        else
+                            tv.scrollTo(0, 0);
+                        if (tv.getLineCount() > lineAmount) {
+                            tv.getEditableText().delete(0, tv.getText().toString().indexOf("\n")+1);
+                        }
+                    }
                 }
             });
         }
