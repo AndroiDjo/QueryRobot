@@ -1,7 +1,9 @@
 package com.androidjo.queryrobot;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.speech.tts.Voice;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -20,10 +22,17 @@ public class MainActivity extends AppCompatActivity {
     private BtSingleton bts;
     private Spine spine;
     private RoboVision rv;
+    private RoboHearing rh;
     private LottieAnimationView lav;
     private TextView tv;
     private ExecutorService exService;
 
+    //голосовые команды
+    private static final String LOOK = "смотри";
+    private static final String SWITCH_ON = "включи";
+    private static final String SWITCH_OFF = "отключи";
+    private static final String LATERN = "лампочка";
+    private String[] mCommands = {LOOK,SWITCH_ON,SWITCH_OFF,LATERN};
     private String[] animList = {"twirl_particles_loading", "infinite_rainbow", "empty_list", "curved_line_animation", "threed_circle_loader"};
     private int animIndex = 0;
 
@@ -31,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        lav = (LottieAnimationView) findViewById(R.id.animation_view);
+        //lav = (LottieAnimationView) findViewById(R.id.animation_view);
         tv = (TextView) findViewById(R.id.textView);
         exService = Executors.newCachedThreadPool();
         initFeelings();
@@ -53,6 +62,29 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             exService.submit(cbt);
+        }
+
+        rh = RoboHearing.getInstance();
+        VoiceCommand vc = new VoiceCommand(this);
+        rh.initHearing(this, vc, mCommands);
+    }
+
+    private class VoiceCommand implements RoboCommand {
+        Activity mActivity;
+
+        VoiceCommand(Activity activity) {
+            mActivity = activity;
+        }
+
+        @Override
+        public void doCommand(String s) {
+            if (s.indexOf(LOOK) > -1) {
+                rv.initCamera(mActivity);
+            } else if (s.indexOf(SWITCH_OFF) > -1) {
+                rv.stopCamera();
+            } else if (s.indexOf(LATERN) > -1) {
+                spine.switchDiod();
+            }
         }
     }
 
