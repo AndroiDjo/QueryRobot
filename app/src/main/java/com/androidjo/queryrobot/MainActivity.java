@@ -3,7 +3,6 @@ package com.androidjo.queryrobot;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.speech.tts.Voice;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -26,13 +25,16 @@ public class MainActivity extends AppCompatActivity {
     private LottieAnimationView lav;
     private TextView tv;
     private ExecutorService exService;
-
     //голосовые команды
-    private static final String LOOK = "смотри";
-    private static final String SWITCH_ON = "включи";
-    private static final String SWITCH_OFF = "отключи";
-    private static final String LATERN = "лампочка";
-    private String[] mCommands = {LOOK,SWITCH_ON,SWITCH_OFF,LATERN};
+    private String[] mCommands = {
+            Const.ROBO_NAME,
+            Const.LOOK,
+            Const.STOP_LOOK,
+            Const.STOP_LOOK2,
+            Const.CAM_ON,
+            Const.LATERN,
+            Const.ATTENTION
+    };
     private String[] animList = {"twirl_particles_loading", "infinite_rainbow", "empty_list", "curved_line_animation", "threed_circle_loader"};
     private int animIndex = 0;
 
@@ -40,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //lav = (LottieAnimationView) findViewById(R.id.animation_view);
+        lav = (LottieAnimationView) findViewById(R.id.animation_view);
         tv = (TextView) findViewById(R.id.textView);
         exService = Executors.newCachedThreadPool();
         initFeelings();
@@ -78,14 +80,23 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void doCommand(String s) {
-            if (s.indexOf(LOOK) > -1) {
-                rv.initCamera(mActivity);
-            } else if (s.indexOf(SWITCH_OFF) > -1) {
-                rv.stopCamera();
-            } else if (s.indexOf(LATERN) > -1) {
-                spine.switchDiod();
+            if (checkCmd(s,Const.ROBO_NAME)) {
+
+                if (checkCmd(s,Const.LOOK) || checkCmd(s,Const.CAM_ON) || checkCmd(s,Const.ATTENTION)) {
+                    rv.initCamera(mActivity);
+                } else if (checkCmd(s,Const.STOP_LOOK) || checkCmd(s,Const.STOP_LOOK2)) {
+                    rv.stopCamera();
+                }
+
+                if (checkCmd(s, Const.LATERN)) {
+                    spine.switchDiod();
+                }
             }
         }
+    }
+
+    private boolean checkCmd(String source, String command) {
+        return (source.indexOf(command) > -1);
     }
 
     private void startThinking() {

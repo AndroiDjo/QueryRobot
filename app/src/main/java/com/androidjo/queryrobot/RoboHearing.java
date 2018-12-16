@@ -41,10 +41,21 @@ public class RoboHearing implements RecognitionListener{
     }
 
     public void initHearing(Activity activity, RoboCommand rc, String[] commands) {
-        mRoboCommand = rc;
-        mCommands = commands;
-        setupRecognizer(activity);
+        if (mRoboCommand==null) {
+            mRoboCommand = rc;
+            mCommands = commands;
+            setupRecognizer(activity);
+        }
     }
+
+//    public Runnable getRunnableRoboHearing(Activity activity, RoboCommand rc, String[] commands) {
+//        Runnable r = new Runnable() {
+//            public void run() {
+//                initHearing(Activity activity, RoboCommand rc, String[] commands);
+//            }
+//        };
+//        return r;
+//    }
 
     @Override
     public void onBeginningOfSpeech() {
@@ -54,16 +65,16 @@ public class RoboHearing implements RecognitionListener{
     @Override
     public void onEndOfSpeech() {
         Log.d(TAG, "onEndOfSpeech");
-        if (recognizer.getSearchName().equals(COMMAND_SEARCH)) {
-            recognizer.stop();
-        }
+//        if (recognizer.getSearchName().equals(COMMAND_SEARCH)) {
+//            recognizer.stop();
+//        }
     }
 
     @Override
     public void onPartialResult(Hypothesis hypothesis) {
         if (hypothesis == null)
             return;
-        post(500, mStopRecognitionCallback);
+        post(1000, mStopRecognitionCallback);
         String text = hypothesis.getHypstr();
         Util.log("partial "+text);
     }

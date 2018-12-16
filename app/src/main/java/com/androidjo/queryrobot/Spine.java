@@ -3,7 +3,7 @@ package com.androidjo.queryrobot;
 public class Spine {
     private Servo horServo;
     private Servo verServo;
-    private boolean diodIsOn = false;
+    private boolean diodIsOn = true;
     private BtSingleton bts;
 
     private static Spine mInstance = new Spine();
@@ -29,6 +29,6 @@ public class Spine {
 
     public void switchDiod() {
         diodIsOn = !diodIsOn;
-        bts.btCmd(diodIsOn?"0":"1");
+        bts.btCmd((diodIsOn?"0":"1")+";");
     }
 }

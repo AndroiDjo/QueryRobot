@@ -79,7 +79,7 @@ public class PhonMapper {
         put("в", "f");
         put("г", "k");
         put("д", "d");
-        put("е", "e");
+        put("е", "je");
         put("ё", "j oo");
         put("ж", "zh");
         put("з", "z");
