@@ -9,4 +9,8 @@ public class Const {
     public static final String STOP_LOOK = "хватит следить";
     public static final String STOP_LOOK2 = "больше не следи";
     public static final String LATERN = "лампочка";
+    public static final String LOOK_UP = "смотри вверх";
+    public static final String LOOK_DOWN = "смотри вниз";
+    public static final String LOOK_CENTER = "смотри по центру";
+
 }

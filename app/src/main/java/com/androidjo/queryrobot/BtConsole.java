@@ -105,7 +105,7 @@ public class BtConsole extends AppCompatActivity {
                 if ((horServDegr != horMiddleDegr || verServDegr != verMiddleDegr) && (System.nanoTime() - prevBtTime) / 1e6 > 50) {
                     //Log.d(TAG, "v" + Integer.toString(verServDegr) + "h" + Integer.toString(horServDegr) + ";");
                     //bts.btCmd("sh" + Integer.toString(horServDegr) + ";sv" + Integer.toString(verServDegr) + ";");
-                    spine.turnHead(horServDegr, verServDegr);
+                    spine.turnHead(verServDegr);
                     prevBtTime = System.nanoTime();
                 }
             }
@@ -308,7 +308,7 @@ public class BtConsole extends AppCompatActivity {
 
     public void btConnect(View view) {
         bts.startBt();
-        spine.turnHead(0,50);
+        spine.turnHead(50);
     }
 
     public void btDisconnect(View view) {

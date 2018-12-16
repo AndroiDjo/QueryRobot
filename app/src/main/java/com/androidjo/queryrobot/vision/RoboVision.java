@@ -20,7 +20,7 @@ import com.google.android.gms.vision.face.FaceDetector;
 
 import java.io.IOException;
 
-public class RoboVision {
+public class RoboVision implements Runnable {
 
     private static final String TAG = "RoboVision";
     private static final int RES_X = 320;
@@ -29,6 +29,7 @@ public class RoboVision {
     private static final int RC_HANDLE_CAMERA_PERM = 2;
     private CameraSource mCameraSource = null;
     private Spine spine;
+    private Activity mActivity;
     private static RoboVision mInstance = new RoboVision();
 
     private RoboVision() {
@@ -40,13 +41,7 @@ public class RoboVision {
     }
 
     public void initCamera(Activity activity) {
-        int rc = ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA);
-        if (rc == PackageManager.PERMISSION_GRANTED) {
-            createCameraSource(activity);
-            startCameraSource(activity);
-        } else {
-            requestCameraPermission(activity);
-        }
+        mActivity = activity;
     }
 
     public void stopCamera() {
@@ -110,6 +105,19 @@ public class RoboVision {
                 ActivityCompat.requestPermissions(thisActivity, permissions, RC_HANDLE_CAMERA_PERM);
             }
         };
+    }
+
+    @Override
+    public void run() {
+        if (mActivity!=null) {
+            int rc = ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.CAMERA);
+            if (rc == PackageManager.PERMISSION_GRANTED) {
+                createCameraSource(mActivity);
+                startCameraSource(mActivity);
+            } else {
+                requestCameraPermission(mActivity);
+            }
+        }
     }
 
     private class GraphicFaceTrackerFactory implements MultiProcessor.Factory<Face> {

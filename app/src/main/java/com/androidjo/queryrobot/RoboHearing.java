@@ -22,13 +22,14 @@ import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
 import edu.cmu.pocketsphinx.SpeechRecognizerSetup;
 
-public class RoboHearing implements RecognitionListener{
+public class RoboHearing implements RecognitionListener, Runnable{
 
     private static final String TAG = "RoboHearing";
     private SpeechRecognizer recognizer;
     private static final String COMMAND_SEARCH = "command";
     private RoboCommand mRoboCommand;
     private String[] mCommands;
+    private Activity mActivity;
     private final Handler mHandler = new Handler();
     private static RoboHearing mInstance = new RoboHearing();
 
@@ -44,18 +45,9 @@ public class RoboHearing implements RecognitionListener{
         if (mRoboCommand==null) {
             mRoboCommand = rc;
             mCommands = commands;
-            setupRecognizer(activity);
+            mActivity = activity;
         }
     }
-
-//    public Runnable getRunnableRoboHearing(Activity activity, RoboCommand rc, String[] commands) {
-//        Runnable r = new Runnable() {
-//            public void run() {
-//                initHearing(Activity activity, RoboCommand rc, String[] commands);
-//            }
-//        };
-//        return r;
-//    }
 
     @Override
     public void onBeginningOfSpeech() {
@@ -98,6 +90,12 @@ public class RoboHearing implements RecognitionListener{
     @Override
     public void onTimeout() {
         Util.log("timeout");
+    }
+
+    @Override
+    public void run() {
+        if (mActivity!=null)
+            setupRecognizer(mActivity);
     }
 
     private static class SetupTask extends AsyncTask<Void, Void, Exception> {
@@ -174,7 +172,7 @@ public class RoboHearing implements RecognitionListener{
         }
     };
 
-    private synchronized void stopRecognition() {
+    public synchronized void stopRecognition() {
         if (recognizer == null) return;
         recognizer.stop();
     }

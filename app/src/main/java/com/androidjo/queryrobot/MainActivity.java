@@ -33,7 +33,10 @@ public class MainActivity extends AppCompatActivity {
             Const.STOP_LOOK2,
             Const.CAM_ON,
             Const.LATERN,
-            Const.ATTENTION
+            Const.ATTENTION,
+            Const.LOOK_UP,
+            Const.LOOK_DOWN,
+            Const.LOOK_CENTER
     };
     private String[] animList = {"twirl_particles_loading", "infinite_rainbow", "empty_list", "curved_line_animation", "threed_circle_loader"};
     private int animIndex = 0;
@@ -60,32 +63,35 @@ public class MainActivity extends AppCompatActivity {
             CallbackTask cbt = bts.startBtCallback(new Callback() {
                 public void complete() {
                     exService.submit(bts.getRunnableBtListener());
-                    spine.turnHead(0, 60);
+                    spine.turnHead(60);
                 }
             });
             exService.submit(cbt);
         }
-
+        rv.initCamera(this);
         rh = RoboHearing.getInstance();
-        VoiceCommand vc = new VoiceCommand(this);
+        VoiceCommand vc = new VoiceCommand();
         rh.initHearing(this, vc, mCommands);
+        exService.submit(rh);
     }
 
     private class VoiceCommand implements RoboCommand {
-        Activity mActivity;
-
-        VoiceCommand(Activity activity) {
-            mActivity = activity;
-        }
-
         @Override
         public void doCommand(String s) {
             if (checkCmd(s,Const.ROBO_NAME)) {
 
                 if (checkCmd(s,Const.LOOK) || checkCmd(s,Const.CAM_ON) || checkCmd(s,Const.ATTENTION)) {
-                    rv.initCamera(mActivity);
+                    exService.submit(rv);
                 } else if (checkCmd(s,Const.STOP_LOOK) || checkCmd(s,Const.STOP_LOOK2)) {
                     rv.stopCamera();
+                }
+
+                if(checkCmd(s, Const.LOOK_UP)) {
+                    spine.turnHead(100);
+                } else if(checkCmd(s, Const.LOOK_DOWN)) {
+                    spine.turnHead(0);
+                } else if(checkCmd(s, Const.LOOK_CENTER)) {
+                    spine.turnHead(50);
                 }
 
                 if (checkCmd(s, Const.LATERN)) {
@@ -117,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         lav.playAnimation();
         if (animIndex >= animList.length-1) animIndex = 0;
         else animIndex++;*/
-        rv.initCamera(this);
+        exService.submit(rv);
     }
 
     public void stopAction(View view) {
@@ -138,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         rv.stopCamera();
+        rh.stopRecognition();
     }
 
 }

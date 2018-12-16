@@ -1,7 +1,6 @@
 package com.androidjo.queryrobot;
 /*Позвоночник: управление групповыми действиями*/
 public class Spine {
-    private Servo horServo;
     private Servo verServo;
     private boolean diodIsOn = true;
     private BtSingleton bts;
@@ -10,7 +9,6 @@ public class Spine {
 
     private Spine() {
         bts = BtSingleton.getInstance();
-        horServo = new Servo("sh", 20, 180);
         verServo = new Servo("sv", 0, 99);
     }
 
@@ -18,8 +16,7 @@ public class Spine {
         return mInstance;
     }
 
-    public void turnHead(int horD, int verD) {
-        //horServo.move(horD);
+    public void turnHead(int verD) {
         verServo.move(verD);
     }
 
