@@ -128,6 +128,7 @@ public class RoboHearing implements RecognitionListener, Runnable{
                 hearingReference.get().recognizer = SpeechRecognizerSetup.defaultSetup()
                         .setAcousticModel(hmmDir)
                         .setDictionary(dict)
+                        .setBoolean("-remove_noise", false)
                         .getRecognizer();
                 hearingReference.get().recognizer.addGrammarSearch(COMMAND_SEARCH, jsgf);
             } catch (IOException e) {

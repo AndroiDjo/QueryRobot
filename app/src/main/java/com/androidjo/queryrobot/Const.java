@@ -12,5 +12,13 @@ public class Const {
     public static final String LOOK_UP = "смотри вверх";
     public static final String LOOK_DOWN = "смотри вниз";
     public static final String LOOK_CENTER = "смотри по центру";
+    public static final String CONSOLE_ON = "открой консоль";
+    public static final String CONSOLE_OFF = "закрой консоль";
 
+    //эмоции
+    public static final String EMO_REGULAR = "robo_eyes";
+    public static final String EMO_ANGRY = "robo_eyes_angry";
+    public static final String EMO_HAPPY = "robo_eyes_happy";
+    public static final String EMO_BLINK = "robo_eyes_blink";
+    public static final String EMO_SAD = "robo_eyes_sad";
 }

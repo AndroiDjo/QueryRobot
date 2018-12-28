@@ -30,6 +30,7 @@ public class RoboVision implements Runnable {
     private CameraSource mCameraSource = null;
     private Spine spine;
     private Activity mActivity;
+    long prevTurnHeadTime = System.nanoTime();
     private static RoboVision mInstance = new RoboVision();
 
     private RoboVision() {
@@ -164,16 +165,19 @@ public class RoboVision implements Runnable {
     }
 
     private void turnHead(int y) {
-        int step = 1;
-        int affordable = RES_Y / 15;
+        if ((System.nanoTime() - prevTurnHeadTime) / 1e6 > 50) {
+            int step = 2;
+            int affordable = RES_Y / 15;
 
-        if (y > RES_Y / 2 + affordable) {
-            spine.turnHeadVertical(-1*step);
-            Log.d(TAG, "DOWN");
-        } else if (y < RES_Y / 2 - affordable) {
-            Log.d(TAG, "UP");
-            spine.turnHeadVertical(step);
-        } else Log.d(TAG, "STAY");
+            if (y > RES_Y / 2 + affordable) {
+                spine.turnHeadVertical(-1 * step);
+                Log.d(TAG, "DOWN");
+            } else if (y < RES_Y / 2 - affordable) {
+                Log.d(TAG, "UP");
+                spine.turnHeadVertical(step);
+            } else Log.d(TAG, "STAY");
+            prevTurnHeadTime = System.nanoTime();
+        }
     }
 
 }
