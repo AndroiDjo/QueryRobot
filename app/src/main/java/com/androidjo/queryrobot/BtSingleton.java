@@ -28,6 +28,7 @@ public class BtSingleton {
     private static boolean deviceConnected = false;
     private static byte buffer[];
     private static boolean stopThread;
+    private RoboCommand mRoboCommand;
 
     private static BtSingleton mInstance = new BtSingleton();
 
@@ -50,6 +51,10 @@ public class BtSingleton {
 
     public void setConsoleTV(TextView view) {
         tv = view;
+    }
+
+    public void setmRoboCommand(RoboCommand c) {
+        mRoboCommand = c;
     }
 
     public boolean isBtEnabled() {
@@ -177,6 +182,7 @@ public class BtSingleton {
                     byte[] rawBytes = new byte[byteCount];
                     inputStream.read(rawBytes);
                     final String string=new String(rawBytes,"UTF-8");
+                    mRoboCommand.doCommand(string);
                     console(string);
                 }
             }

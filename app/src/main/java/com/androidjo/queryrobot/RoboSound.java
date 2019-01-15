@@ -1,10 +1,7 @@
 package com.androidjo.queryrobot;
 
-import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.media.MediaPlayer;
-import android.support.v7.app.AppCompatActivity;
 
 public class RoboSound {
     private MediaPlayer mp;

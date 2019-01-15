@@ -2,6 +2,7 @@ package com.androidjo.queryrobot;
 /*Позвоночник: управление групповыми действиями*/
 public class Spine {
     private Servo verServo;
+    private Motor motor;
     private boolean diodIsOn = true;
     private BtSingleton bts;
 
@@ -10,6 +11,7 @@ public class Spine {
     private Spine() {
         bts = BtSingleton.getInstance();
         verServo = new Servo("sv", 0, 99);
+        motor = new Motor("mot", 90, 255);
     }
 
     public static Spine getInstance(){
@@ -27,5 +29,25 @@ public class Spine {
     public void switchDiod() {
         diodIsOn = !diodIsOn;
         bts.btCmd((diodIsOn?"0":"1")+";");
+    }
+
+    public void moveForward(int speed, int time, int stopDistance) {
+        motor.move(1, 1, speed, time, stopDistance);
+    }
+
+    public void moveBack(int speed, int time) {
+        motor.move(-1, -1, speed, time, 0);
+    }
+
+    public void moveRight(int speed, int time, int stopDistance) {
+        motor.move(1, -1, speed, time, stopDistance);
+    }
+
+    public void moveLeft(int speed, int time, int stopDistance) {
+        motor.move(-1, 1, speed, time, stopDistance);
+    }
+
+    public void stopMoving() {
+        motor.move(0, 0, 0, 0, 0);
     }
 }

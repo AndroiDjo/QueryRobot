@@ -1,0 +1,10 @@
+dict.dic
+lm.jsgf
+acoustic_model/feat.params
+acoustic_model/feature_transform
+acoustic_model/mdef
+acoustic_model/means
+acoustic_model/mixture_weights
+acoustic_model/noisedict
+acoustic_model/transition_matrices
+acoustic_model/variances

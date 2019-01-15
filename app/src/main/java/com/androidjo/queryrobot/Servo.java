@@ -8,24 +8,11 @@ public class Servo {
     private int currentDegree = 0;
     private int prevDegree = -1;
 
-    public Servo() {
-        bts = BtSingleton.getInstance();
-    }
-
     public Servo(String prefix, int low, int high) {
         cmdPrefix = prefix;
         lowLimit = low;
         highLimit = high;
         bts = BtSingleton.getInstance();
-    }
-
-    public void setCmdPrefix(String prefix) {
-        cmdPrefix = prefix;
-    }
-
-    public void setLimits(int low, int high) {
-        lowLimit = low;
-        highLimit = high;
     }
 
     public int getCurrentDegree() {

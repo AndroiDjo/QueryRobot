@@ -14,6 +14,11 @@ public class Const {
     public static final String LOOK_CENTER = "смотри по центру";
     public static final String CONSOLE_ON = "открой консоль";
     public static final String CONSOLE_OFF = "закрой консоль";
+    public static final String MOVE_FWD = "едь вперёд";
+    public static final String MOVE_BACK = "едь назад";
+    public static final String MOVE_LEFT = "поверни налево";
+    public static final String MOVE_RIGHT = "поверни направо";
+    public static final String HOW_IS_YOUR_NAME = "как тебя зовут";
 
     //эмоции
     public static final String EMO_REGULAR = "robo_eyes";
@@ -21,4 +26,8 @@ public class Const {
     public static final String EMO_HAPPY = "robo_eyes_happy";
     public static final String EMO_BLINK = "robo_eyes_blink";
     public static final String EMO_SAD = "robo_eyes_sad";
+
+    //команды от ардуино
+    public static final String ARD_BARRIER = "brr";
+    public static final String ARD_LISTEN = "lstn";
 }

@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,29 +30,15 @@ public class MainActivity extends AppCompatActivity {
     private RoboSound rs;
     private LottieAnimationView lav;
     private TextView tv;
+    private ImageView iv;
     private ExecutorService exService;
     private final Handler mHandler = new Handler();
     final Random random = new Random();
     private String nextEmotion = Const.EMO_REGULAR;
     private String curEmotion = Const.EMO_REGULAR;
-
-    //голосовые команды
-    private String[] mCommands = {
-            Const.ROBO_NAME,
-            Const.LOOK,
-            Const.STOP_LOOK,
-            Const.STOP_LOOK2,
-            Const.CAM_ON,
-            Const.LATERN,
-            Const.ATTENTION,
-            Const.LOOK_UP,
-            Const.LOOK_DOWN,
-            Const.LOOK_CENTER,
-            Const.CONSOLE_ON,
-            Const.CONSOLE_OFF
-    };
     private String[] regularEmotions = {"robo_eyes_o_l", "robo_eyes_o_r", "robo_eyes_blink", "robo_eyes_squint"};
     private String[] regularSounds = {"happy", "hmm", "oo", "ooo", "uuu"};
+    private String[] myNames = {"query", "queery"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         lav = (LottieAnimationView) findViewById(R.id.animation_view);
         tv = (TextView) findViewById(R.id.textView);
+        iv = (ImageView) findViewById(R.id.imageView);
+        iv.setClickable(true);
         exService = Executors.newCachedThreadPool();
         initFeelings();
         startThinking();
@@ -67,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private void initFeelings() {
         bts = BtSingleton.getInstance();
         bts.setConsoleTV(tv);
+        ArduinoCommand ac = new ArduinoCommand();
+        bts.setmRoboCommand(ac);
         spine = Spine.getInstance();
         rv = RoboVision.getInstance();
         rs = RoboSound.getInstance();
@@ -84,40 +75,69 @@ public class MainActivity extends AppCompatActivity {
         rv.initCamera(this);
         rh = RoboHearing.getInstance();
         VoiceCommand vc = new VoiceCommand();
-        rh.initHearing(this, vc, mCommands);
+        rh.initHearing(this, vc, iv);
         exService.submit(rh);
+        iv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rh.startRecognition();
+            }
+        });
         initEmotions();
     }
 
     private class VoiceCommand implements RoboCommand {
         @Override
         public void doCommand(String s) {
-            if (true/*checkCmd(s,Const.ROBO_NAME)*/) {
-
-                if (s.contains(Const.LOOK) || s.contains(Const.CAM_ON) || s.contains(Const.ATTENTION)) {
-                    exService.submit(rv);
-                } else if (s.contains(Const.STOP_LOOK) || s.contains(Const.STOP_LOOK2)) {
-                    rv.stopCamera();
-                }
-
-                if(s.contains(Const.LOOK_UP)) {
-                    spine.turnHead(100);
-                } else if(s.contains(Const.LOOK_DOWN)) {
-                    spine.turnHead(0);
-                } else if(s.contains(Const.LOOK_CENTER)) {
-                    spine.turnHead(50);
-                }
-
-                if (s.contains(Const.CONSOLE_ON)) {
-                    bts.setConsoleTV(tv);
-                } else if (s.contains(Const.CONSOLE_OFF)) {
-                    bts.setConsoleTV(null);
-                }
-
-                if (s.contains(Const.LATERN)) {
-                    spine.switchDiod();
-                }
+            if (s.contains(Const.LOOK) || s.contains(Const.CAM_ON) || s.contains(Const.ATTENTION)) {
+                exService.submit(rv);
+            } else if (s.contains(Const.STOP_LOOK) || s.contains(Const.STOP_LOOK2)) {
+                rv.stopCamera();
             }
+
+            if(s.contains(Const.LOOK_UP)) {
+                spine.turnHead(100);
+            } else if(s.contains(Const.LOOK_DOWN)) {
+                spine.turnHead(0);
+            } else if(s.contains(Const.LOOK_CENTER)) {
+                spine.turnHead(50);
+            }
+
+            if (s.contains(Const.CONSOLE_ON)) {
+                bts.setConsoleTV(tv);
+            } else if (s.contains(Const.CONSOLE_OFF)) {
+                bts.setConsoleTV(null);
+            }
+
+            if (s.contains(Const.MOVE_FWD)) {
+                spine.moveForward(255, 1000, 0);
+            } else if (s.contains(Const.MOVE_BACK)) {
+                spine.moveBack(255, 1000);
+            } else if (s.contains(Const.MOVE_LEFT)) {
+                spine.moveLeft(90, 250, 0);
+            } else if (s.contains(Const.MOVE_RIGHT)) {
+                spine.moveRight(90, 250, 0);
+            }
+
+            if (s.contains(Const.HOW_IS_YOUR_NAME)) {
+                rs.play(MainActivity.this, getRawIndex(myNames[random.nextInt(myNames.length)]));
+            }
+
+            if (s.contains(Const.LATERN)) {
+                spine.switchDiod();
+            }
+        }
+    }
+
+    private class ArduinoCommand implements RoboCommand {
+        @Override
+        public void doCommand(String s) {
+            if (s.equals(Const.ARD_LISTEN)) { // включаем распознавание голоса
+                rh.startRecognition();
+            } else if (s.equals(Const.ARD_BARRIER)) {
+                // уперлись в препятствие
+            }
+
         }
     }
 
@@ -137,8 +157,8 @@ public class MainActivity extends AppCompatActivity {
                    curEmotion = nextEmotion;
                    //lav.setProgress(0);
                    lav.playAnimation();
-                   if (!nextEmotion.equals(Const.EMO_REGULAR))
-                        rs.play(MainActivity.this, getRawIndex(regularSounds[random.nextInt(regularSounds.length)]));
+//                   if (!nextEmotion.equals(Const.EMO_REGULAR))
+//                        rs.play(MainActivity.this, getRawIndex(regularSounds[random.nextInt(regularSounds.length)]));
                }
 
                if (!nextEmotion.equals(Const.EMO_REGULAR))
@@ -175,11 +195,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void doAction(View view) {
-        /*lav.setAnimation(getResources().getIdentifier(animList[animIndex],"raw", getPackageName()));
-        lav.playAnimation();
-        if (animIndex >= animList.length-1) animIndex = 0;
-        else animIndex++;*/
-        exService.submit(rv);
+        spine.moveForward(255, 1000, 15);
     }
 
     public void stopAction(View view) {
