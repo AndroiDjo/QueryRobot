@@ -11,6 +11,7 @@
         android:id="@+id/joystickView"
         android:layout_width="wrap_content"
         android:layout_height="150dp"
+        app:JV_buttonColor="@color/colorAccent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="511dp" />

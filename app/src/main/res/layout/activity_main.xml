@@ -10,9 +10,9 @@
         android:id="@+id/animation_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:lottie_rawRes="@raw/robo_eyes"
+        app:lottie_autoPlay="true"
         app:lottie_loop="true"
-        app:lottie_autoPlay="true" />
+        app:lottie_rawRes="@raw/robo_eyes" />
 
     <TextView
         android:id="@+id/textView"
@@ -33,9 +33,21 @@
         android:layout_height="50dp"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
-        android:minWidth="100px"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/mic_mute" />
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:orientation="vertical">
+
+        <com.androidjo.queryrobot.ui.JoystickView
+            android:id="@+id/joystickView"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            app:JV_buttonColor="@color/colorAccent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

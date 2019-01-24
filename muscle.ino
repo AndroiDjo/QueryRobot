@@ -15,8 +15,10 @@
 #define E2 6 // Enable Pin for motor 2
 #define I3 7 // Control pin 1 for motor 2
 #define I4 8 // Control pin 2 for motor 2
-int curSpeed;
-int motorSpeed = 0;
+int leftMotorCurSpeed;
+int rightMotorCurSpeed;
+int leftMotorSpeed = 0;
+int rightMotorSpeed = 0;
 int motorTime = 0;
 int stopDistance = 0;
 unsigned long prev_time = 0;
@@ -61,6 +63,8 @@ void setup()
   delay(100);
   servvl.write(EEPROM[60]);
   servvr.write(EEPROM[160]);
+  leftMotorCurSpeed = minSpeed;
+  rightMotorCurSpeed = minSpeed;
 }
 
 void loop()
@@ -143,9 +147,10 @@ void doCommand(String command)
       digitalWrite(I4, LOW);
     }
     
-    motorSpeed = getMotorSpeed(getSplitPart(cmd, '&', 3).toInt());
-    motorTime = getSplitPart(cmd, '&', 4).toInt();
-    stopDistance = getSplitPart(cmd, '&', 5).toInt();
+    leftMotorSpeed = getMotorSpeed(getSplitPart(cmd, '&', 3).toInt());
+    rightMotorSpeed = getMotorSpeed(getSplitPart(cmd, '&', 4).toInt());
+    motorTime = getSplitPart(cmd, '&', 5).toInt();
+    stopDistance = getSplitPart(cmd, '&', 6).toInt();
     prev_time = millis();
   }
   
@@ -168,10 +173,13 @@ void motorEngine()
    if (motorTime > 0) {
      if (millis() - prev_time <= motorTime) {
        checkBarrier();
-       if (curSpeed <= maxSpeed) {
-         analogWrite(E1, curSpeed);
-         analogWrite(E2, curSpeed);
-         ++curSpeed;
+       if (leftMotorCurSpeed <= leftMotorSpeed) {
+         analogWrite(E1, leftMotorCurSpeed);
+         ++leftMotorCurSpeed;
+       }
+       if (rightMotorCurSpeed <= rightMotorSpeed) {
+         analogWrite(E2, rightMotorCurSpeed);
+         ++rightMotorCurSpeed;
        }
      } else {
        stopMotors();
@@ -184,7 +192,8 @@ void checkBarrier()
   if (stopDistance > 0) {
     if (millis() - prev100ms > 50) {
       prev100ms = millis();
-      if (sonar.ping_cm() <= stopDistance) {
+      unsigned int uS = sonar.ping_cm();
+      if (uS > 0 && uS <= stopDistance) {
         stopMotors();
         Serial.println("brr");
       }
@@ -201,7 +210,10 @@ void stopMotors()
    digitalWrite(E1, LOW);
    digitalWrite(E2, LOW);
    motorTime = 0;
-   curSpeed = minSpeed;
+   leftMotorCurSpeed = minSpeed;
+   rightMotorCurSpeed = minSpeed;
+   leftMotorSpeed = 0;
+   rightMotorSpeed = 0;
    stopDistance = 0;
 }
 

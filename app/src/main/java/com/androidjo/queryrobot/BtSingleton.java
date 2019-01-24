@@ -207,16 +207,18 @@ public class BtSingleton {
             final int lineAmount = 20;
             tv.post(new Runnable() {
                 public void run() {
-                    tv.append(s+"\n");
-                    Layout l = tv.getLayout();
-                    if (l!=null) {
-                        final int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
-                        if (scrollAmount > 0)
-                            tv.scrollTo(0, scrollAmount);
-                        else
-                            tv.scrollTo(0, 0);
-                        if (tv.getLineCount() > lineAmount) {
-                            tv.getEditableText().delete(0, tv.getText().toString().indexOf("\n")+1);
+                    if (tv != null) {
+                        tv.append(s + "\n");
+                        Layout l = tv.getLayout();
+                        if (l != null) {
+                            final int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
+                            if (scrollAmount > 0)
+                                tv.scrollTo(0, scrollAmount);
+                            else
+                                tv.scrollTo(0, 0);
+                            if (tv.getLineCount() > lineAmount) {
+                                tv.getEditableText().delete(0, tv.getText().toString().indexOf("\n") + 1);
+                            }
                         }
                     }
                 }

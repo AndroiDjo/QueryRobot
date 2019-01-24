@@ -8,12 +8,14 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.androidjo.queryrobot.ui.JoystickView;
 import com.androidjo.queryrobot.vision.RoboVision;
 
 import java.util.Random;
@@ -31,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private LottieAnimationView lav;
     private TextView tv;
     private ImageView iv;
+    private JoystickView joystick;
     private ExecutorService exService;
     private final Handler mHandler = new Handler();
     final Random random = new Random();
@@ -47,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         lav = (LottieAnimationView) findViewById(R.id.animation_view);
         tv = (TextView) findViewById(R.id.textView);
         iv = (ImageView) findViewById(R.id.imageView);
+        joystick = (JoystickView) findViewById(R.id.joystickView);
         iv.setClickable(true);
         exService = Executors.newCachedThreadPool();
         initFeelings();
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         initEmotions();
+        initJoystick();
     }
 
     private class VoiceCommand implements RoboCommand {
@@ -107,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                 bts.setConsoleTV(tv);
             } else if (s.contains(Const.CONSOLE_OFF)) {
                 bts.setConsoleTV(null);
+                tv.setText("");
             }
 
             if (s.contains(Const.MOVE_FWD)) {
@@ -139,6 +145,35 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    private void initJoystick() {
+        joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
+            @Override
+            public void onMove(int angle, int strength) {
+                Log.d(TAG, "angle="+ Integer.toString(angle) + " strength=" + Integer.toString(strength) + ";");
+                float k = strength / 100;
+                if (angle > 15 && angle < 165) {
+                    spine.moveForward(Math.round(Util.mapRangeToRange(angle, 15, 165, spine.motorMaxSpeed, spine.motorMinSpeed) * k),
+                            Math.round(Util.mapRangeToRange(angle, 15, 165, spine.motorMinSpeed, spine.motorMaxSpeed) * k),
+                            200, 0);
+                }
+
+                if (angle > 195 && angle < 345) {
+                    spine.moveBack(Math.round(Util.mapRangeToRange(angle, 195, 345, spine.motorMinSpeed, spine.motorMaxSpeed) * k),
+                            Math.round(Util.mapRangeToRange(angle, 195, 345, spine.motorMaxSpeed, spine.motorMinSpeed) * k),
+                            200);
+                }
+
+                if (angle <= 15 || angle >= 345) {
+                    spine.moveRight(Util.mapRangeToRange(strength,0, 100, spine.motorMinSpeed, spine.motorMaxSpeed), 200, 0);
+                }
+
+                if (angle >= 165 && angle <= 195) {
+                    spine.moveLeft(Util.mapRangeToRange(strength,0, 100, spine.motorMinSpeed, spine.motorMaxSpeed), 200, 0);
+                }
+            }
+        });
     }
 
     private void startThinking() {

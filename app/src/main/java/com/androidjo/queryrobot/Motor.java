@@ -5,17 +5,14 @@ public class Motor {
     private String cmdPrefix;
     private int minSpeed;
     private int maxSpeed;
-    private int currentSpeed = 0;
+    private int leftMotorCurrentSpeed = 0;
+    private int rightMotorCurrentSpeed = 0;
 
     public Motor(String prefix, int low, int high) {
         cmdPrefix = prefix;
         minSpeed = low;
         maxSpeed = high;
         bts = BtSingleton.getInstance();
-    }
-
-    public int getCurrentSpeed() {
-        return currentSpeed;
     }
 
     private int getSpeedWithLimits(int speed) {
@@ -25,10 +22,15 @@ public class Motor {
         return result;
     }
 
-    public void move(int leftMotorDirection, int rightMotorDirection, int motorSpeed, int time, int stopDistance) {
-        currentSpeed = getSpeedWithLimits(motorSpeed);
-        bts.btCmd(cmdPrefix + "&" + Integer.toString(leftMotorDirection) + "&" + Integer.toString(rightMotorDirection) + "&" + Integer.toString(currentSpeed) +
-                "&" + Integer.toString(time) + "&" + Integer.toString(stopDistance) + ";");
+    public void move(int leftMotorDirection, int rightMotorDirection, int time) {
+        move(leftMotorDirection, rightMotorDirection, maxSpeed, maxSpeed, time, 0);
+    }
+
+    public void move(int leftMotorDirection, int rightMotorDirection, int leftMotorSpeed, int rightMotorSpeed, int time, int stopDistance) {
+        leftMotorCurrentSpeed = getSpeedWithLimits(leftMotorSpeed);
+        rightMotorCurrentSpeed = getSpeedWithLimits(rightMotorSpeed);
+        bts.btCmd(cmdPrefix + "&" + Integer.toString(leftMotorDirection) + "&" + Integer.toString(rightMotorDirection) + "&" + Integer.toString(leftMotorCurrentSpeed) +
+                "&" + Integer.toString(rightMotorCurrentSpeed) + "&" + Integer.toString(time) + "&" + Integer.toString(stopDistance) + ";");
     }
 
 }
