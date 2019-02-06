@@ -5,7 +5,7 @@ public class Spine {
     private Motor motor;
     private boolean diodIsOn = true;
     private BtSingleton bts;
-    public int motorMinSpeed = 90;
+    public int motorMinSpeed = 70;
     public int motorMaxSpeed = 255;
 
     private static Spine mInstance = new Spine();

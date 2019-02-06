@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] regularEmotions = {"robo_eyes_o_l", "robo_eyes_o_r", "robo_eyes_blink", "robo_eyes_squint"};
     private String[] regularSounds = {"happy", "hmm", "oo", "ooo", "uuu"};
     private String[] myNames = {"query", "queery"};
+    long prevCmdTime = System.nanoTime();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,26 +153,29 @@ public class MainActivity extends AppCompatActivity {
         joystick.setOnMoveListener(new JoystickView.OnMoveListener() {
             @Override
             public void onMove(int angle, int strength) {
-                Log.d(TAG, "angle="+ Integer.toString(angle) + " strength=" + Integer.toString(strength) + ";");
-                float k = strength / 100;
-                if (angle > 15 && angle < 165) {
-                    spine.moveForward(Math.round(Util.mapRangeToRange(angle, 15, 165, spine.motorMaxSpeed, spine.motorMinSpeed) * k),
-                            Math.round(Util.mapRangeToRange(angle, 15, 165, spine.motorMinSpeed, spine.motorMaxSpeed) * k),
-                            200, 0);
-                }
+                if ((System.nanoTime() - prevCmdTime) / 1e6 > 50){
+                    Log.d(TAG, "angle=" + Integer.toString(angle) + " strength=" + Integer.toString(strength) + ";");
+                    float k = strength / 100f;
+                    if (angle > 5 && angle <= 90) {
+                        spine.moveForward(Math.round(spine.motorMaxSpeed * k),
+                                Math.round(Util.mapRangeToRange(angle, 6, 90, spine.motorMinSpeed, spine.motorMaxSpeed) * k),
+                                200, 0);
+                    } else if (angle > 90 && angle < 175) {
+                        spine.moveForward(Math.round(Util.mapRangeToRange(angle, 91, 174, spine.motorMaxSpeed, spine.motorMinSpeed) * k),
+                                Math.round(spine.motorMaxSpeed * k),200, 0);
+                    } else if (angle > 185 && angle <=270 && strength > 10) {
+                        spine.moveBack(Math.round(Util.mapRangeToRange(angle, 186, 270, spine.motorMinSpeed, spine.motorMaxSpeed) * k),
+                                Math.round(spine.motorMaxSpeed*k), 200);
+                    } else if (angle > 270 && angle < 355 && strength > 10) {
+                        spine.moveBack(Math.round(spine.motorMaxSpeed*k),
+                                Math.round(Util.mapRangeToRange(angle, 271, 354, spine.motorMaxSpeed, spine.motorMinSpeed) * k), 200);
+                    } else if ((angle <= 5 || angle >= 355) && strength > 40) {
+                        spine.moveRight(Util.mapRangeToRange(strength, 0, 100, spine.motorMinSpeed, spine.motorMaxSpeed), 200, 0);
+                    } else if ((angle >= 175 && angle <= 185) && strength > 40) {
+                        spine.moveLeft(Util.mapRangeToRange(strength, 0, 100, spine.motorMinSpeed, spine.motorMaxSpeed), 200, 0);
+                    }
 
-                if (angle > 195 && angle < 345) {
-                    spine.moveBack(Math.round(Util.mapRangeToRange(angle, 195, 345, spine.motorMinSpeed, spine.motorMaxSpeed) * k),
-                            Math.round(Util.mapRangeToRange(angle, 195, 345, spine.motorMaxSpeed, spine.motorMinSpeed) * k),
-                            200);
-                }
-
-                if (angle <= 15 || angle >= 345) {
-                    spine.moveRight(Util.mapRangeToRange(strength,0, 100, spine.motorMinSpeed, spine.motorMaxSpeed), 200, 0);
-                }
-
-                if (angle >= 165 && angle <= 195) {
-                    spine.moveLeft(Util.mapRangeToRange(strength,0, 100, spine.motorMinSpeed, spine.motorMaxSpeed), 200, 0);
+                    prevCmdTime = System.nanoTime();
                 }
             }
         });

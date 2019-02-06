@@ -1,5 +1,7 @@
 package com.androidjo.queryrobot;
 
+import android.util.Log;
+
 public class Motor {
     private BtSingleton bts;
     private String cmdPrefix;
@@ -29,6 +31,7 @@ public class Motor {
     public void move(int leftMotorDirection, int rightMotorDirection, int leftMotorSpeed, int rightMotorSpeed, int time, int stopDistance) {
         leftMotorCurrentSpeed = getSpeedWithLimits(leftMotorSpeed);
         rightMotorCurrentSpeed = getSpeedWithLimits(rightMotorSpeed);
+        Log.d("Motor", Integer.toString(leftMotorDirection)+" "+Integer.toString(rightMotorDirection)+" "+Integer.toString(leftMotorSpeed)+" "+Integer.toString(rightMotorSpeed));
         bts.btCmd(cmdPrefix + "&" + Integer.toString(leftMotorDirection) + "&" + Integer.toString(rightMotorDirection) + "&" + Integer.toString(leftMotorCurrentSpeed) +
                 "&" + Integer.toString(rightMotorCurrentSpeed) + "&" + Integer.toString(time) + "&" + Integer.toString(stopDistance) + ";");
     }

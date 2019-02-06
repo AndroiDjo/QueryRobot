@@ -15,14 +15,12 @@
 #define E2 6 // Enable Pin for motor 2
 #define I3 7 // Control pin 1 for motor 2
 #define I4 8 // Control pin 2 for motor 2
-int leftMotorCurSpeed;
-int rightMotorCurSpeed;
 int leftMotorSpeed = 0;
 int rightMotorSpeed = 0;
 int motorTime = 0;
 int stopDistance = 0;
 unsigned long prev_time = 0;
-const int minSpeed = 90;
+const int minSpeed = 0;
 const int maxSpeed = 255;
 
 #define TEMP_PIN A0 // термистор
@@ -63,8 +61,6 @@ void setup()
   delay(100);
   servvl.write(EEPROM[60]);
   servvr.write(EEPROM[160]);
-  leftMotorCurSpeed = minSpeed;
-  rightMotorCurSpeed = minSpeed;
 }
 
 void loop()
@@ -162,9 +158,9 @@ int getMotorSpeed(int s)
   if (s > maxSpeed) {
     result = maxSpeed;
   }
-  else if (s < minSpeed) {
+  /*else if (s < minSpeed) {
     result = minSpeed;
-  }
+  }*/
   return result;
 }
 
@@ -173,14 +169,8 @@ void motorEngine()
    if (motorTime > 0) {
      if (millis() - prev_time <= motorTime) {
        checkBarrier();
-       if (leftMotorCurSpeed <= leftMotorSpeed) {
-         analogWrite(E1, leftMotorCurSpeed);
-         ++leftMotorCurSpeed;
-       }
-       if (rightMotorCurSpeed <= rightMotorSpeed) {
-         analogWrite(E2, rightMotorCurSpeed);
-         ++rightMotorCurSpeed;
-       }
+       analogWrite(E1, leftMotorSpeed);
+       analogWrite(E2, rightMotorSpeed);
      } else {
        stopMotors();
      }
@@ -210,8 +200,6 @@ void stopMotors()
    digitalWrite(E1, LOW);
    digitalWrite(E2, LOW);
    motorTime = 0;
-   leftMotorCurSpeed = minSpeed;
-   rightMotorCurSpeed = minSpeed;
    leftMotorSpeed = 0;
    rightMotorSpeed = 0;
    stopDistance = 0;
