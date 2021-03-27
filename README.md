@@ -15,3 +15,14 @@ Features:
 - swivel head
 - emotions animation from adobe after effects
 - sounds of emotions
+
+Hardware:
+- android smarthone
+- smartphone holder
+- arduino nano
+- bluetooth module
+- wheel platform with 2 motors and 2 wheels
+- battery 18650
+- laser
+- sonar sensor HC-SR04
+- MicroServo 9g x2
